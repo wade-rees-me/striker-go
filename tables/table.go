@@ -2,13 +2,13 @@ package tables
 
 import (
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/wade-rees-me/striker-go/arguments"
 	"github.com/wade-rees-me/striker-go/cards"
 	"github.com/wade-rees-me/striker-go/database"
+	"github.com/wade-rees-me/striker-go/logger"
 )
 
 type Table struct {
@@ -59,8 +59,7 @@ func NewTable(r *database.TableRules, p *Player, tableNumber, numberOfDecks int,
 func (t *Table) Session(wg *sync.WaitGroup, numberOfRounds int) {
 	defer wg.Done()
 
-	log.Printf("  Beg table: %v, rounds: %v\n", t.Number, numberOfRounds)
-	//log.Printf("    Player: %v\n", t.Player.PlayerReport.Strategy)
+	logger.Log.Info(fmt.Sprintf("  Beg table: %v, rounds: %v\n", t.Number, numberOfRounds))
 	t.SimulationReport.Start = time.Now()
 	t.SimulationReport.TableReport.NumberOfRounds = int64(numberOfRounds)
 	for i := 0; i < numberOfRounds; i++ {
@@ -83,7 +82,7 @@ func (t *Table) Session(wg *sync.WaitGroup, numberOfRounds int) {
 
 	t.SimulationReport.End = time.Now()
 	t.SimulationReport.Duration = time.Since(t.SimulationReport.Start).Round(time.Second)
-	log.Printf("  End table: %v, ended at %v, total elapsed time: %v", t.Number, t.SimulationReport.End, t.SimulationReport.Duration)
+	logger.Log.Info(fmt.Sprintf("  End table: %v, ended at %v, total elapsed time: %v", t.Number, t.SimulationReport.End, t.SimulationReport.Duration))
 }
 
 func (t *Table) dealCards() *cards.Card {

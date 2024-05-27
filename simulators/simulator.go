@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"strings"
@@ -16,6 +15,7 @@ import (
 	"github.com/wade-rees-me/striker-go/constants"
 	"github.com/wade-rees-me/striker-go/database"
 	"github.com/wade-rees-me/striker-go/tables"
+	"github.com/wade-rees-me/striker-go/logger"
 )
 
 type SimulationReports struct {
@@ -114,7 +114,7 @@ func (s *Simulation) RunSimulation() {
 	var wg sync.WaitGroup
 	var start = time.Now()
 
-	log.Printf("Simulation %v, started at %v", s.Name, start)
+	logger.Log.Info(fmt.Sprintf("Simulation %v, started at %v", s.Name, start))
 	wg.Add(len(s.tableList))
 	for i := range s.tableList {
 		t := &s.tableList[i]
@@ -124,7 +124,7 @@ func (s *Simulation) RunSimulation() {
 
 	end := time.Now()
 	s.Duration = time.Since(start).Round(time.Second).String()
-	log.Printf("Simulation %v, ended at %v, total elapsed time: %v", s.Name, end, s.Duration)
+	logger.Log.Info(fmt.Sprintf("Simulation %v, ended at %v, total elapsed time: %v", s.Name, end, s.Duration))
 }
 
 func (s *Simulation) newPlayStrategy() *tables.PlayStrategy {
@@ -175,7 +175,7 @@ func unmarshalStrategyMap(data *string) map[int][]string {
 
 	err := json.Unmarshal([]byte(*data), &c)
 	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
+		logger.Log.Error(fmt.Sprintf("Unmarshal: %v", err))
 	}
 	return c
 }

@@ -20,10 +20,10 @@ func init() {
 
 func (c *clStrategyStruct) Get() string {
 	if c.PolynomialFlag { // (This option is currently unimplemented)
-		return "basic"//"polynomial"
+		return "basic" //"polynomial"
 	}
 	if c.LinearFlag { // (This option is currently unimplemented)
-		return "basic"//"linear"
+		return "basic" //"linear"
 	}
 	return "basic"
 }

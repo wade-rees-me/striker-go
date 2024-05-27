@@ -5,7 +5,7 @@ import (
 )
 
 func Banner() {
-	fmt.Println()
+	fmt.Println("")
 	fmt.Println("  #####                                             #####         ")
 	fmt.Println(" #     # ##### #####  # #    # ###### #####        #     #  ####  ")
 	fmt.Println(" #         #   #    # # #   #  #      #    #       #       #    # ")
@@ -13,6 +13,5 @@ func Banner() {
 	fmt.Println("       #   #   #####  # #  #   #      #####        #     # #    # ")
 	fmt.Println(" #     #   #   #   #  # #   #  #      #   #        #     # #    # ")
 	fmt.Println("  #####    #   #    # # #    # ###### #    #        #####   ####  ")
-	fmt.Println()
+	fmt.Println("")
 }
-                                                                  

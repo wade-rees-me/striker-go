@@ -5,9 +5,10 @@ const (
 	StrikerWhoAmI     = "Striker-Go"
 	QueueName         = "StrikerQueue"
 	QueueTimeout      = int64(5) // in seconds
-	QueueSleepTime    = 300
+	QueueSleepTime    = 30
 	MaxNumberOfRounds = 250000000
 	MinNumberOfRounds = 10000
 	MaxNumberOfTables = 4
 	MinNumberOfTables = 1
+	DebugFileName     = "debug.log"
 )

@@ -3,13 +3,8 @@ package utilities
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"strconv"
 )
-
-func Log(s string) {
-	log.Print(s)
-}
 
 func JsonPrettyPrint(in string) string {
 	var out bytes.Buffer

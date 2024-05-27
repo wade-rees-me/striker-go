@@ -9,10 +9,14 @@ import (
 	"github.com/wade-rees-me/striker-go/constants"
 	"github.com/wade-rees-me/striker-go/simulators"
 	"github.com/wade-rees-me/striker-go/utilities"
+	"github.com/wade-rees-me/striker-go/logger"
 )
 
 func main() {
 	flag.Parse()
+
+	logger.OpenDebugFile(constants.DebugFileName)
+    logger.Log.Debug(fmt.Sprintf("Staring Striker-Go version: %s", constants.StrikerVersion))
 
 	if arguments.CLFlags.HelpFlag || len(flag.Args()) > 0 {
 		flag.PrintDefaults()
@@ -28,8 +32,10 @@ func main() {
 		screen.MoveTopLeft()
 		utilities.Banner()
 		simulators.SimulatorRunOnce()
+		logger.Log.CloseDebugFile()
 		return
 	}
 	utilities.Banner()
 	simulators.SimulatorRunQueue()
+	logger.Log.CloseDebugFile()
 }

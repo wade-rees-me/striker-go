@@ -19,12 +19,12 @@ type PlayStrategy struct {
 }
 
 type Player struct {
-	TableRules   *database.TableRules
-	PlayStrategy PlayStrategy
-	Wager        Wager
-	Splits       [MaxSplitHands]Wager
-	splitCount   int
-	PlayerReport PlayerReport
+	TableRules    *database.TableRules
+	PlayStrategy  PlayStrategy
+	Wager         Wager
+	Splits        [MaxSplitHands]Wager
+	splitCount    int
+	PlayerReport  PlayerReport
 	blackjackPays int
 	blackjackBets int
 }
@@ -44,10 +44,10 @@ func NewPlayer(tr *database.TableRules, playStrategy *PlayStrategy, blackjackPay
 	p := new(Player)
 	p.TableRules = tr
 	p.PlayStrategy = *playStrategy
-    _, err := fmt.Sscanf(blackjackPays, "%d:%d", &p.blackjackPays, &p.blackjackBets)
-    if err != nil {
-        panic(fmt.Sprintf("Failed to parse blackjack pays: %v", err))
-    }
+	_, err := fmt.Sscanf(blackjackPays, "%d:%d", &p.blackjackPays, &p.blackjackBets)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to parse blackjack pays: %v", err))
+	}
 	return p
 }
 

@@ -20,10 +20,10 @@ func init() {
 
 func (c *clTableStruct) Get() string {
 	if c.DeckDoubleFlag { // (This option is currently unimplemented)
-		return "single"//"double"
+		return "single" //"double"
 	}
 	if c.DeckMultiFlag { // (This option is currently unimplemented)
-		return "single"//"multi"
+		return "single" //"multi"
 	}
 	return "single"
 }
