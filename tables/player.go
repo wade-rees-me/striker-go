@@ -3,8 +3,8 @@ package tables
 import (
 	"strings"
 
-	"github.com/wade-rees-me/striker-go/cmd/striker/cards"
-	"github.com/wade-rees-me/striker-go/cmd/striker/database"
+	"github.com/wade-rees-me/striker-go/cards"
+	"github.com/wade-rees-me/striker-go/database"
 )
 
 const MaxSplitHands = 3

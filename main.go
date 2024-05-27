@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	screen "github.com/aditya43/clear-shell-screen-golang"
-	"github.com/wade-rees-me/striker-go/cmd/striker/arguments"
-	"github.com/wade-rees-me/striker-go/cmd/striker/constants"
-	"github.com/wade-rees-me/striker-go/cmd/striker/simulators"
-	"github.com/wade-rees-me/striker-go/cmd/striker/utilities"
+	"github.com/wade-rees-me/striker-go/arguments"
+	"github.com/wade-rees-me/striker-go/constants"
+	"github.com/wade-rees-me/striker-go/simulators"
+	"github.com/wade-rees-me/striker-go/utilities"
 )
 
 func main() {

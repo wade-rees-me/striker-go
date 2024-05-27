@@ -1,7 +1,7 @@
 package tables
 
 import (
-	"github.com/wade-rees-me/striker-go/cmd/striker/cards"
+	"github.com/wade-rees-me/striker-go/cards"
 )
 
 type Hand struct {

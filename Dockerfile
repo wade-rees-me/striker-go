@@ -11,8 +11,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the rest of the application code
-COPY main.go .
-COPY cmd/striker cmd/striker
+COPY . .
 
 # Build the Go application with CGO disabled for static linking
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o striker .
