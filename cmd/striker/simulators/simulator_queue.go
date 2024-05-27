@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/constants"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/database"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/queues"
+	"github.com/wade-rees-me/striker-go/cmd/striker/constants"
+	"github.com/wade-rees-me/striker-go/cmd/striker/database"
+	"github.com/wade-rees-me/striker-go/cmd/striker/queues"
 )
 
 func SimulatorRunOnce() {
@@ -24,20 +24,21 @@ func SimulatorRunQueue() {
 	for {
 		msgResult, err := queues.Receive(constants.QueueName, constants.QueueTimeout)
 		if err != nil {
-			fmt.Println("Warning: cannot load the request message: ", err)
+			fmt.Println("Striker: Warning: cannot load the request message: ", err)
+			time.Sleep(constants.QueueSleepTime * time.Second)
 			continue
 		}
 
 		fmt.Println("  Reading queue: ", fmt.Sprint(len(msgResult.Messages)))
 		if len(msgResult.Messages) == 0 {
-			fmt.Println("  Sleeping")
+			fmt.Println("  Striker: Sleeping")
 			time.Sleep(constants.QueueSleepTime * time.Second)
 			continue
 		}
 
 		sim := NewSimulation()
 		request := *msgResult.Messages[0].Body
-		fmt.Println("Request: " + request)
+		fmt.Println("Striker: Request: " + request)
 
 		err = json.Unmarshal([]byte(request), &sim.Parameters)
 		if err != nil {

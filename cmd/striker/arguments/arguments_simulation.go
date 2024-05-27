@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/constants"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/utilities"
+	"github.com/wade-rees-me/striker-go/cmd/striker/constants"
+	"github.com/wade-rees-me/striker-go/cmd/striker/utilities"
 )
 
 type clSimulationStruct struct {

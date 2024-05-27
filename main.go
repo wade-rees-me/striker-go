@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	screen "github.com/aditya43/clear-shell-screen-golang"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/arguments"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/constants"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/simulators"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/utilities"
+	"github.com/wade-rees-me/striker-go/cmd/striker/arguments"
+	"github.com/wade-rees-me/striker-go/cmd/striker/constants"
+	"github.com/wade-rees-me/striker-go/cmd/striker/simulators"
+	"github.com/wade-rees-me/striker-go/cmd/striker/utilities"
 )
 
 func main() {
@@ -30,5 +30,6 @@ func main() {
 		simulators.SimulatorRunOnce()
 		return
 	}
+	utilities.Banner()
 	simulators.SimulatorRunQueue()
 }

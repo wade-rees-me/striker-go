@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/arguments"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/constants"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/database"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/tables"
+	"github.com/wade-rees-me/striker-go/cmd/striker/arguments"
+	"github.com/wade-rees-me/striker-go/cmd/striker/constants"
+	"github.com/wade-rees-me/striker-go/cmd/striker/database"
+	"github.com/wade-rees-me/striker-go/cmd/striker/tables"
 )
 
 type SimulationReports struct {

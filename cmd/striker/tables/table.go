@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/arguments"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/cards"
-	"github.com/wade-rees-me/go-blackjack/cmd/striker/database"
+	"github.com/wade-rees-me/striker-go/cmd/striker/arguments"
+	"github.com/wade-rees-me/striker-go/cmd/striker/cards"
+	"github.com/wade-rees-me/striker-go/cmd/striker/database"
 )
 
 type Table struct {
