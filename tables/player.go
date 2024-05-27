@@ -1,6 +1,7 @@
 package tables
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/wade-rees-me/striker-go/cards"
@@ -24,6 +25,8 @@ type Player struct {
 	Splits       [MaxSplitHands]Wager
 	splitCount   int
 	PlayerReport PlayerReport
+	blackjackPays int
+	blackjackBets int
 }
 
 type WagerReport struct {
@@ -37,10 +40,14 @@ type PlayerReport struct {
 	Hand  HandReport
 }
 
-func NewPlayer(tr *database.TableRules, playStrategy *PlayStrategy) *Player {
+func NewPlayer(tr *database.TableRules, playStrategy *PlayStrategy, blackjackPays string) *Player {
 	p := new(Player)
 	p.TableRules = tr
 	p.PlayStrategy = *playStrategy
+    _, err := fmt.Sscanf(blackjackPays, "%d:%d", &p.blackjackPays, &p.blackjackBets)
+    if err != nil {
+        panic(fmt.Sprintf("Failed to parse blackjack pays: %v", err))
+    }
 	return p
 }
 
@@ -138,7 +145,7 @@ func (p *Player) Payoff(blackjack bool, busted bool, total int) {
 func (p *Player) payoffHand(w *Wager, blackjack bool, busted bool, total int) {
 	if w.Hand.Blackjack() {
 		if !blackjack {
-			w.WonBlackjack()
+			w.WonBlackjack(p.blackjackPays, p.blackjackBets)
 		}
 	} else if w.Hand.Busted() {
 		w.Lost()

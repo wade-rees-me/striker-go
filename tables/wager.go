@@ -38,8 +38,8 @@ func (w *Wager) Blackjack() bool {
 	return w.Hand.Blackjack()
 }
 
-func (w *Wager) WonBlackjack() {
-	w.AmountWon += (w.AmountBet * 3) / 2
+func (w *Wager) WonBlackjack(pays, bet int) {
+	w.AmountWon += (w.AmountBet * pays) / bet
 }
 
 func (w *Wager) Won() {

@@ -75,7 +75,7 @@ func NewSimulation() *Simulation {
 
 	strategy := s.newPlayStrategy()
 	for i := 1; i <= s.Parameters.Tables; i++ {
-		s.tableList = append(s.tableList, *s.getTable(i, tables.NewPlayer(s.TableRules, strategy)))
+		s.tableList = append(s.tableList, *s.getTable(i, tables.NewPlayer(s.TableRules, strategy, s.Parameters.BlackjackPays)))
 	}
 
 	return s
