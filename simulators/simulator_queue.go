@@ -15,7 +15,7 @@ func SimulatorRunOnce() {
 	sim.PrintSimulation()
 	database.ProcessingInsert(sim.Parameters.Target, sim.Parameters.Guid, sim.Hostname, sim.Parameters.Timestamp, sim.getParameters())
 	sim.RunSimulation()
-	database.SimulationInsert(sim.Parameters.Target, sim.Parameters.Guid, sim.Hostname, sim.Parameters.Strategy, sim.Parameters.Rules, sim.Parameters.Decks, sim.Parameters.Timestamp, sim.getReport())
+	database.SimulationInsert(sim.Parameters.Target, sim.Parameters.Guid, sim.Hostname, sim.Parameters.Strategy, sim.Parameters.Rules, sim.Parameters.Decks, sim.Parameters.Timestamp, sim.Duration, sim.getReport())
 	database.ProcessingDelete(sim.Parameters.Guid)
 }
 
@@ -60,7 +60,7 @@ func SimulatorRunQueue() {
 			}
 		}
 		sim.RunSimulation() // Add results to the processed table in the database
-		database.SimulationInsert(sim.Parameters.Target, sim.Parameters.Guid, sim.Hostname, sim.Parameters.Strategy, sim.Parameters.Rules, sim.Parameters.Decks, sim.Parameters.Timestamp, sim.getReport())
+		database.SimulationInsert(sim.Parameters.Target, sim.Parameters.Guid, sim.Hostname, sim.Parameters.Strategy, sim.Parameters.Rules, sim.Parameters.Decks, sim.Parameters.Timestamp, sim.Duration, sim.getReport())
 		database.ProcessingDelete(sim.Parameters.Guid)
 	}
 }

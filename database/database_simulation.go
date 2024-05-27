@@ -3,6 +3,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -20,10 +22,12 @@ type dbSimulation struct {
 	Rules    string
 	Decks    string
 	Epoch    int64
+	Timestamp string
+	Duration string
 	Payload  string
 }
 
-func SimulationInsert(target, guid, host, strategy, rules, decks string, epoch int64, payload string) error {
+func SimulationInsert(target, guid, host, strategy, rules, decks string, epoch int64, duration, payload string) error {
 	item := dbSimulation{
 		Target:   target,
 		Guid:     guid,
@@ -32,6 +36,8 @@ func SimulationInsert(target, guid, host, strategy, rules, decks string, epoch i
 		Rules:    rules,
 		Decks:    decks,
 		Epoch:    epoch,
+		Timestamp: time.Unix(epoch, 0).Format("2006-01-02 15:04:05.000"),
+		Duration:  duration,
 		Payload:  payload,
 	}
 

@@ -35,14 +35,12 @@ type WagerReport struct {
 type PlayerReport struct {
 	Wager WagerReport
 	Hand  HandReport
-	//PlayStrategy PlayStrategy
 }
 
 func NewPlayer(tr *database.TableRules, playStrategy *PlayStrategy) *Player {
 	p := new(Player)
 	p.TableRules = tr
 	p.PlayStrategy = *playStrategy
-	//p.PlayerReport.PlayStrategy = *playStrategy
 	return p
 }
 
@@ -73,7 +71,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
 	if p.split(&p.Wager, up) {
 		split := p.Splits[p.splitCount]
 		p.splitCount++
-		if p.Wager.Hand.PairOf(cards.Ace) {
+		if !p.TableRules.ResplitAces && !p.TableRules.HitSplitAces && p.Wager.Hand.PairOf(cards.Ace) {
 			p.Wager.SplitWager(&split)
 			p.Wager.Hand.Draw(s.Draw())
 			split.Hand.Draw(s.Draw())
@@ -95,12 +93,12 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
 }
 
 func (p *Player) PlaySplit(h *Wager, s *cards.Shoe, up *cards.Card) {
-	if p.TableRules.DoubleAfterSplit && p.double(h, up) {
+	if p.TableRules.DoubleAfterSplit && (p.TableRules.HitSplitAces || !p.Wager.Hand.PairOf(cards.Ace)) && p.double(h, up) {
 		p.Wager.Double()
 		p.Wager.Hand.Draw(s.Draw())
 		return
 	}
-	if p.split(h, up) {
+	if (p.TableRules.ResplitAces || !p.Wager.Hand.PairOf(cards.Ace)) && p.split(h, up) {
 		split := p.Splits[p.splitCount]
 		p.splitCount++
 		h.Hand.Draw(s.Draw())
@@ -109,8 +107,10 @@ func (p *Player) PlaySplit(h *Wager, s *cards.Shoe, up *cards.Card) {
 		p.PlaySplit(&split, s, up)
 		return
 	}
-	for !p.stand(h, up) {
-		h.Hand.Draw(s.Draw())
+	if p.TableRules.HitSplitAces || !p.Wager.Hand.PairOf(cards.Ace) {
+		for !p.stand(h, up) {
+			h.Hand.Draw(s.Draw())
+		}
 	}
 	if p.Wager.Hand.Busted() {
 		p.PlayerReport.Hand.HandsBusted++

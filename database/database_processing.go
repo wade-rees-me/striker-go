@@ -3,6 +3,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -13,20 +15,22 @@ const (
 )
 
 type dbProcessing struct {
-	Target   string
-	Guid     string
-	Hostname string
-	Epoch    int64
-	Payload  string
+	Target    string
+	Guid      string
+	Hostname  string
+	Epoch     int64
+	Timestamp string
+	Payload   string
 }
 
 func ProcessingInsert(target, guid, host string, epoch int64, payload string) error {
 	item := dbProcessing{
-		Target:   target,
-		Guid:     guid,
-		Hostname: host,
-		Epoch:    epoch,
-		Payload:  payload,
+		Target:    target,
+		Guid:      guid,
+		Hostname:  host,
+		Epoch:     epoch,
+		Timestamp: time.Unix(epoch, 0).Format("2006-01-02 15:04:05.000"),
+		Payload:   payload,
 	}
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {

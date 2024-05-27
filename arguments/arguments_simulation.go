@@ -20,6 +20,6 @@ var CLSimulation = new(clSimulationStruct)
 func init() {
 	flag.IntVar(&CLSimulation.Tables, "number-of-tables", constants.MinNumberOfTables, fmt.Sprintf("Number of tables (minimum %s; maximum %s).", utilities.Format(constants.MinNumberOfTables), utilities.Format(constants.MaxNumberOfTables)))
 	flag.IntVar(&CLSimulation.Rounds, "number-of-rounds", constants.MinNumberOfRounds, fmt.Sprintf("Number of rounds (minimum %s; maximum %s).", utilities.Format(constants.MinNumberOfRounds), utilities.Format(constants.MaxNumberOfRounds)))
-	flag.StringVar(&CLSimulation.BlackjackPays, "table-blackjack-pays", "3:2", "Blackjack pays.")
-	flag.Float64Var(&CLSimulation.Penatration, "table-penatration", float64(0.75), "Deck penatrations before shuffle.")
+	flag.StringVar(&CLSimulation.BlackjackPays, "table-blackjack-pays", "3:2", "Blackjack pays. (This option is currently unimplemented)")
+	flag.Float64Var(&CLSimulation.Penatration, "table-penatration", float64(0.75), "Deck penatrations before shuffle. (This option is currently unimplemented)")
 }

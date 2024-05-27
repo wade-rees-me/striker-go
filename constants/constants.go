@@ -1,7 +1,7 @@
 package constants
 
 const (
-	StrikerVersion    = "v00.00.02"
+	StrikerVersion    = "v01.00.00"
 	StrikerWhoAmI     = "Striker-Go"
 	QueueName         = "StrikerQueue"
 	QueueTimeout      = int64(5) // in seconds
