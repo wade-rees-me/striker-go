@@ -47,10 +47,13 @@ func ProcessingInsert(target, guid, host string, epoch int64, payload string) er
 	return err
 }
 
-func ProcessingDelete(guid string) error {
+func ProcessingDelete(target, guid string) error {
 	svc := dynamodb.New(CreateSession())
 	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
+			"Target": {
+				S: aws.String(guid),
+			},
 			"Guid": {
 				S: aws.String(guid),
 			},

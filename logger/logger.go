@@ -44,16 +44,19 @@ func NewLogger(infoHandle io.Writer, warningHandle io.Writer, errorHandle io.Wri
 // Info logs an info message
 func (l *Logger) Info(message string) {
 	l.infoLogger.Println(message)
+	l.debugLogger.Println(message)
 }
 
 // Warning logs a warning message
 func (l *Logger) Warning(message string) {
 	l.warningLogger.Println(message)
+	l.debugLogger.Println(message)
 }
 
 // Error logs an error message
 func (l *Logger) Error(message string) {
 	l.errorLogger.Println(message)
+	l.debugLogger.Println(message)
 }
 
 // Debug logs a debug message
