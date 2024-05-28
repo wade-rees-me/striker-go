@@ -14,8 +14,12 @@ github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfC
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/wade-rees-me/striker-go/cards v0.0.0-20240528163205-4cd5e152e0a6 h1:6A/gp31yF92ebGgks71KJ2JF78ffXeCAuyOqsNrHI3E=
+github.com/wade-rees-me/striker-go/cards v0.0.0-20240528163205-4cd5e152e0a6/go.mod h1:jGgVtPrtoLHd/g6tfzBLS9Y1YFCWdfv0KPIF6VgLlk8=
 github.com/wade-rees-me/striker-go/constants v0.0.0-20240528161919-0775cc5ef547 h1:IV7j9G3PMZrEf5hEBdXi6UcYsrlejmoT3ayX7lQ2qJs=
 github.com/wade-rees-me/striker-go/constants v0.0.0-20240528161919-0775cc5ef547/go.mod h1:nVYok3sf8YykaCJxBWDh+Hf1F9OKyf5Z6jFSUfJFbi0=
+github.com/wade-rees-me/striker-go/tables v0.0.0-20240528163205-4cd5e152e0a6 h1:dNmh6Z6xsUaYzyWxnilssx0uasW67f3ja94Kz/yIYMo=
+github.com/wade-rees-me/striker-go/tables v0.0.0-20240528163205-4cd5e152e0a6/go.mod h1:KdWGb8a9eiJrUJayuqQDYkJqDOqeUvEyW3mipbNOajA=
 golang.org/x/crypto v0.22.0 h1:g1v0xeRhjcugydODzvb3mEM9SQ0HGp9s/nh3COQ/C30=
 golang.org/x/crypto v0.22.0/go.mod h1:vr6Su+7cTlO45qkww3VDJlzDn0ctJvRgYbC2NvXHt+M=
 golang.org/x/sys v0.19.0 h1:q5f1RH2jigJ1MoAWp2KTp3gm5zAGFUTarQZ5U386+4o=
