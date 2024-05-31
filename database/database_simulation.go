@@ -40,6 +40,7 @@ func SimulationInsert(target, guid, host, strategy, rules, decks string, epoch i
 		Duration:  duration,
 		Payload:   payload,
 	}
+fmt.Println(item)
 
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {

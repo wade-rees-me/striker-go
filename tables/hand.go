@@ -57,6 +57,10 @@ func (h *Hand) Total() int {
 	return h.total
 }
 
+func (h *Hand) FirstTwoCardTotal() int {
+	return h.total
+}
+
 func (h *Hand) Soft17() bool {
 	return h.Total() == 17 && h.Soft()
 }
