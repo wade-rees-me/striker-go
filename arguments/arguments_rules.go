@@ -12,8 +12,8 @@ type clRulesStruct struct {
 var CLRules = new(clRulesStruct)
 
 func init() {
-	flag.BoolVar(&CLRules.VegasFlag, "rules-vegas", false, "Vegas rules (default).")
-	flag.BoolVar(&CLRules.RenoFlag, "rules-reno", false, "Reno rules.")
+	flag.BoolVar(&CLRules.VegasFlag, "rules-vegas", false, "Use Vegas rules (default).")
+	flag.BoolVar(&CLRules.RenoFlag, "rules-reno", false, "Use Reno rules.")
 }
 
 func (c *clRulesStruct) Get() string {
