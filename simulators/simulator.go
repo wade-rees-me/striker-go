@@ -14,8 +14,9 @@ import (
 	"github.com/wade-rees-me/striker-go/arguments"
 	"github.com/wade-rees-me/striker-go/constants"
 	"github.com/wade-rees-me/striker-go/database"
-	"github.com/wade-rees-me/striker-go/tables"
 	"github.com/wade-rees-me/striker-go/logger"
+	"github.com/wade-rees-me/striker-go/tables"
+	"github.com/wade-rees-me/striker-go/utilities"
 )
 
 type SimulationReports struct {
@@ -32,7 +33,7 @@ type SimulationParameters struct {
 	Tables        int
 	Rounds        int
 	BlackjackPays string
-	Penatration   float64
+	Penetration   float64
 }
 
 type Simulation struct {
@@ -44,7 +45,7 @@ type Simulation struct {
 	Month      int
 	Day        int
 	Parameters SimulationParameters
-	TableRules *database.TableRules
+	TableRules *database.DBRulesPayload
 	tableList  []tables.Table
 }
 
@@ -69,7 +70,7 @@ func NewSimulation() *Simulation {
 	s.Parameters.Tables = int(math.Max(math.Min(float64(arguments.CLSimulation.Tables), float64(constants.MaxNumberOfTables)), float64(constants.MinNumberOfTables)))
 	s.Parameters.Rounds = int(math.Max(math.Min(float64(arguments.CLSimulation.Rounds), float64(constants.MaxNumberOfRounds)), float64(constants.MinNumberOfRounds)))
 	s.Parameters.BlackjackPays = arguments.CLSimulation.BlackjackPays
-	s.Parameters.Penatration = arguments.CLSimulation.Penatration
+	s.Parameters.Penetration = arguments.CLSimulation.Penetration
 
 	s.TableRules = getTableRules(s.Parameters.Rules, s.Parameters.Decks)
 
@@ -89,8 +90,10 @@ func getHostname() string {
 	return hostname
 }
 
-func getTableRules(rules, decks string) *database.TableRules {
-	tr, err := database.RulesSelect(rules, decks)
+func getTableRules(rules, decks string) *database.DBRulesPayload {
+	rulesTable := new(database.DBRulesTable)
+	rulesTable.Style = fmt.Sprintf("%s-%s", rules, decks)
+	tr, err := rulesTable.Select()
 	if err != nil {
 		panic(fmt.Sprintf("Cannot get table rules: %v", err))
 	}
@@ -107,7 +110,7 @@ func (s *Simulation) getTable(tableNumber int, player *tables.Player) *tables.Ta
 		decks = 6
 	}
 
-	return tables.NewTable(s.TableRules, player, tableNumber, decks, s.Parameters.Penatration, s.Name, s.Guid)
+	return tables.NewTable(s.TableRules, player, tableNumber, decks, s.Parameters.Penetration, s.Name, s.Guid)
 }
 
 func (s *Simulation) RunSimulation() {
@@ -130,25 +133,25 @@ func (s *Simulation) RunSimulation() {
 func (s *Simulation) newPlayStrategy() *tables.PlayStrategy {
 	ps := new(tables.PlayStrategy)
 
-	results, err := database.StrategyScan(strings.ToLower(s.Parameters.Strategy), strings.ToLower(s.Parameters.Rules), strings.ToLower(s.Parameters.Decks))
+	results, err := database.StrategyScan(fmt.Sprintf("%s-%s-%s", strings.ToLower(s.Parameters.Rules), strings.ToLower(s.Parameters.Decks), strings.ToLower(s.Parameters.Strategy)), "HardDouble")
 	if err != nil {
 		panic("Failed to scan table:")
 	}
 
 	for _, item := range results.Items {
-		if handAttr, ok := item["Hand"]; ok && handAttr.S != nil {
+		if handAttr, ok := item["Strategy"]; ok && handAttr.S != nil {
 			hand := *handAttr.S
 			switch hand {
 			case "HardDouble":
-				ps.HardDouble = unmarshalStrategyMap(item["Map"].S)
+				ps.HardDouble = unmarshalStrategyMap(item["Payload"].S)
 			case "SoftDouble":
-				ps.SoftDouble = unmarshalStrategyMap(item["Map"].S)
+				ps.SoftDouble = unmarshalStrategyMap(item["Payload"].S)
 			case "PairSplit":
-				ps.PairSplit = unmarshalStrategyMap(item["Map"].S)
+				ps.PairSplit = unmarshalStrategyMap(item["Payload"].S)
 			case "HardStand":
-				ps.HardStand = unmarshalStrategyMap(item["Map"].S)
+				ps.HardStand = unmarshalStrategyMap(item["Payload"].S)
 			case "SoftStand":
-				ps.SoftStand = unmarshalStrategyMap(item["Map"].S)
+				ps.SoftStand = unmarshalStrategyMap(item["Payload"].S)
 			default:
 				panic("Unknown hand type:")
 			}
@@ -190,16 +193,9 @@ func (s *Simulation) getReport() string {
 			panic(err)
 		}
 		report.Reports = append(report.Reports, string(b))
+		fmt.Printf("\n%v\n", utilities.JsonPrettyPrint(string(b)))
 	}
 	b, err := json.Marshal(report)
-	if err != nil {
-		panic(err)
-	}
-	return string(b)
-}
-
-func (s *Simulation) getParameters() string {
-	b, err := json.Marshal(s.Parameters)
 	if err != nil {
 		panic(err)
 	}

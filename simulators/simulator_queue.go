@@ -12,6 +12,12 @@ import (
 	"github.com/wade-rees-me/striker-go/queues"
 )
 
+const (
+	Complete   = "complete"
+	Processing = "processing"
+	Summary    = "summary"
+)
+
 func SimulatorRunOnce() {
 	if err := SimulatorProcess(NewSimulation()); err != nil {
 		logger.Log.Error(fmt.Sprintf("Simulation failed: %s", err))
@@ -95,18 +101,23 @@ func monitorQueue(done chan bool, wg *sync.WaitGroup, receiptHandle string) {
 }
 
 func SimulatorProcess(s *Simulation) error {
+	tbs := new(database.DBSimulationTable)
+	tbs.Style = fmt.Sprintf("%s-%s-%s", s.Parameters.Rules, s.Parameters.Decks, s.Parameters.Strategy)
+	tbs.Guid = s.Parameters.Guid
+	tbs.Target = s.Parameters.Target
+	tbs.Hostname = s.Hostname
+	tbs.Status = Processing
+
 	s.PrintSimulation()
-	if err := database.ProcessingInsert(s.Parameters.Target, s.Parameters.Guid, s.Hostname, s.Parameters.Timestamp, s.getParameters()); err != nil {
-		logger.Log.Error(fmt.Sprintf("Failed to insert into Processing table: %s", err))
-		return err
-	}
-	s.RunSimulation()
-	if err := database.SimulationInsert(s.Parameters.Target, s.Parameters.Guid, s.Hostname, s.Parameters.Strategy, s.Parameters.Rules, s.Parameters.Decks, s.Parameters.Timestamp, s.Duration, s.getReport()); err != nil {
+	if err := tbs.SimulationInsert(); err != nil {
 		logger.Log.Error(fmt.Sprintf("Failed to insert into Simulation table: %s", err))
 		return err
 	}
-	if err := database.ProcessingDelete(s.Parameters.Target, s.Parameters.Guid); err != nil {
-		logger.Log.Error(fmt.Sprintf("Failed to delete from Processing table: %s", err))
+	s.RunSimulation()
+	tbs.Status = Complete
+	tbs.Payload = s.getReport()
+	if err := tbs.SimulationUpdate(); err != nil {
+		logger.Log.Error(fmt.Sprintf("Failed to insert into Simulation table: %s", err))
 		return err
 	}
 	return nil

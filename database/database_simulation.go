@@ -1,8 +1,8 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
 package database
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,60 +14,74 @@ const (
 	SimulationTableName = "StrikerSimulation"
 )
 
-type dbSimulation struct {
-	Target    string
+type dbSimulationPayload struct {
+}
+
+type DBSimulationTable struct {
+	Style     string
 	Guid      string
+	Target    string
 	Hostname  string
-	Strategy  string
-	Rules     string
-	Decks     string
+	Status    string
 	Epoch     int64
 	Timestamp string
-	Duration  string
 	Payload   string
 }
 
-func SimulationInsert(target, guid, host, strategy, rules, decks string, epoch int64, duration, payload string) error {
-	item := dbSimulation{
-		Target:    target,
-		Guid:      guid,
-		Hostname:  host,
-		Strategy:  strategy,
-		Rules:     rules,
-		Decks:     decks,
-		Epoch:     epoch,
-		Timestamp: time.Unix(epoch, 0).Format("2006-01-02 15:04:05.000"),
-		Duration:  duration,
-		Payload:   payload,
-	}
-fmt.Println(item)
+func (s *DBSimulationTable) SimulationUpdate() error {
+	databaseLog.Debug(fmt.Sprintf("Update item in Simulation table: %v", SimulationTableName))
+	s.setTime()
 
-	av, err := dynamodbattribute.MarshalMap(item)
+	key := map[string]*dynamodb.AttributeValue{
+		"Style": {
+			S: aws.String(s.Style),
+		},
+		"Guid": {
+			S: aws.String(s.Guid),
+		},
+	}
+	updateExpression := "SET #S = :s, #P = :p"
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":s": {
+			S: aws.String(s.Status),
+		},
+		":p": {
+			S: aws.String(s.Payload),
+		},
+	}
+	expressionAttributeNames := map[string]*string{
+		"#S": aws.String("Status"),
+		"#P": aws.String("Payload"),
+	}
+
+	return UpdateItemInTable(SimulationTableName, key, updateExpression, expressionAttributeValues, expressionAttributeNames)
+}
+
+func (s *DBSimulationTable) SimulationInsert() error {
+	databaseLog.Debug(fmt.Sprintf("Insert from Simulation table: %v", SimulationTableName))
+	s.setTime()
+	av, err := dynamodbattribute.MarshalMap(s)
 	if err != nil {
 		return err
 	}
-
-	svc := dynamodb.New(CreateSession())
-	input := &dynamodb.PutItemInput{
-		Item:      av,
-		TableName: aws.String(SimulationTableName),
-	}
-
-	_, err = svc.PutItem(input)
-	return err
+	return InsertItemIntoTable(SimulationTableName, av)
 }
 
-func SimulationDelete(guid string) error {
-	svc := dynamodb.New(CreateSession())
-	input := &dynamodb.DeleteItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"Guid": {
-				S: aws.String(guid),
-			},
+func (s *DBSimulationTable) SimulationDelete() error {
+	databaseLog.Debug(fmt.Sprintf("Delete from Simulation table: %v", SimulationTableName))
+	key := map[string]*dynamodb.AttributeValue{
+		"Style": {
+			S: aws.String(strings.ToLower(s.Style)),
 		},
-		TableName: aws.String(SimulationTableName),
+		"Guid": {
+			S: aws.String(s.Guid),
+		},
 	}
+	return DeleteItemFromTable(SimulationTableName, key)
+}
 
-	_, err := svc.DeleteItem(input)
-	return err
+func (s *DBSimulationTable) setTime() {
+	s.Epoch = time.Now().Unix()
+	timeFromEpoch := time.Unix(s.Epoch, 0)
+	s.Timestamp = timeFromEpoch.Format("2006-01-02 15:04:05")
 }

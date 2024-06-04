@@ -8,7 +8,7 @@ import (
 
 func JsonPrettyPrint(in string) string {
 	var out bytes.Buffer
-	err := json.Indent(&out, []byte(in), "", "\t")
+	err := json.Indent(&out, []byte(in), "", "    ")
 	if err != nil {
 		return in
 	}

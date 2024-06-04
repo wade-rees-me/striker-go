@@ -17,14 +17,13 @@ type Logger struct {
 
 var Log = NewLogger(os.Stdout, os.Stdout, os.Stderr, ioutil.Discard)
 
-func OpenDebugFile(fileName string) {
+func (l *Logger) OpenDebugFile(fileName string) {
 	debugFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatalf("Failed to open debug log file: %v", err)
 	}
-	//defer debugFile.Close()
-	Log.debugLogger.SetOutput(debugFile)
-	Log.debugFile = debugFile
+	l.debugLogger.SetOutput(debugFile)
+	l.debugFile = debugFile
 }
 
 func (l *Logger) CloseDebugFile() {

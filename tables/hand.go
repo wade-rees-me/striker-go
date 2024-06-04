@@ -1,6 +1,8 @@
 package tables
 
 import (
+	"fmt"
+
 	"github.com/wade-rees-me/striker-go/cards"
 )
 
@@ -42,7 +44,7 @@ func (h *Hand) Pair() bool {
 }
 
 func (h *Hand) PairOf(r string) bool {
-	return h.Pair() && r == h.Cards[0].Rank
+	return h.Pair() && (r == h.Cards[0].Rank)
 }
 
 func (h *Hand) Busted() bool {
@@ -59,6 +61,10 @@ func (h *Hand) Total() int {
 
 func (h *Hand) FirstTwoCardTotal() int {
 	return h.total
+}
+
+func (h *Hand) GetCard(i int) *cards.Card {
+	return &h.Cards[i]
 }
 
 func (h *Hand) Soft17() bool {
@@ -88,4 +94,11 @@ func (h *Hand) totalHand() {
 		h.total -= 10
 		h.softAce--
 	}
+}
+
+func (h *Hand) ToString() string {
+	if h.Soft() {
+		return fmt.Sprintf("soft %d", h.Total())
+	}
+	return fmt.Sprintf("hard %d", h.Total())
 }

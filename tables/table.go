@@ -16,16 +16,16 @@ type Table struct {
 	Dealer           *Dealer
 	Player           *Player
 	Shoe             cards.Shoe
-	TableRules       *database.TableRules
+	TableRules       *database.DBRulesPayload
 	SimulationReport SimulationReport
 }
 
 type TableReport struct {
 	NumberOfRounds     int64
 	NumberOfHandsDealt int64
-	TableRules         *database.TableRules
+	TableRules         *database.DBRulesPayload
 	BlackjackPays      string
-	Penatration        float64
+	Penetration        float64
 	ShoeReport         *cards.ShoeReport
 	DealerReport       *DealerReport
 	PlayerReport       *PlayerReport
@@ -40,14 +40,14 @@ type SimulationReport struct {
 	TableReport TableReport
 }
 
-func NewTable(r *database.TableRules, p *Player, tableNumber, numberOfDecks int, penatration float64, name, code string) *Table {
+func NewTable(r *database.DBRulesPayload, p *Player, tableNumber, numberOfDecks int, penetration float64, name, code string) *Table {
 	t := new(Table)
 	t.Number = tableNumber
 	t.Dealer = NewDealer(r.HitSoft17)
 	t.Player = p
 	t.TableRules = r
 	deck := cards.NewDeck(cards.Suits, cards.Blackjack, 1)
-	t.Shoe = *cards.NewShoe(*deck, numberOfDecks, penatration)
+	t.Shoe = *cards.NewShoe(*deck, numberOfDecks, penetration)
 
 	t.SimulationReport.Name = fmt.Sprintf("%s_table_%02d", name, tableNumber)
 	t.SimulationReport.Code = code
@@ -69,11 +69,12 @@ func (t *Table) Session(wg *sync.WaitGroup, numberOfRounds int) {
 			t.Dealer.Reset()
 			t.Player.PlaceBet(2)
 			up := t.dealCards()
+			logger.Log.Debug(fmt.Sprintf("Play: %s (%s, %s) vs %s", printHand(&t.Player.Wager), (t.Player.Wager.Hand.GetCard(0)).Rank, (t.Player.Wager.Hand.GetCard(1)).Rank, up.Rank))
 			if !t.Dealer.Hand.Blackjack() { // Dealer does not have 21
 				t.Player.Play(&t.Shoe, up)
-			}
-			if !t.Player.BustedOrBlackjack() { // If the player busted or has blackjack the dealer does not play
-				t.Dealer.Play(&t.Shoe)
+				if !t.Player.BustedOrBlackjack() { // If the player busted or has blackjack the dealer does not play
+					t.Dealer.Play(&t.Shoe)
+				}
 			}
 			t.Player.Payoff(t.Dealer.Hand.Blackjack(), t.Dealer.Hand.Busted(), t.Dealer.Hand.Total())
 			t.Dealer.Statistics()
@@ -98,6 +99,6 @@ func (t *Table) GetReport() *SimulationReport {
 	t.SimulationReport.TableReport.DealerReport = t.Dealer.GetReport()
 	t.SimulationReport.TableReport.PlayerReport = t.Player.GetReport()
 	t.SimulationReport.TableReport.BlackjackPays = arguments.CLSimulation.BlackjackPays
-	t.SimulationReport.TableReport.Penatration = arguments.CLSimulation.Penatration
+	t.SimulationReport.TableReport.Penetration = arguments.CLSimulation.Penetration
 	return &t.SimulationReport
 }
