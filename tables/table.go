@@ -37,6 +37,7 @@ type SimulationReport struct {
 	Start       time.Time
 	End         time.Time
 	Duration    time.Duration
+	ElapsedTime string
 	TableReport TableReport
 }
 
@@ -83,7 +84,8 @@ func (t *Table) Session(wg *sync.WaitGroup, numberOfRounds int) {
 
 	t.SimulationReport.End = time.Now()
 	t.SimulationReport.Duration = time.Since(t.SimulationReport.Start).Round(time.Second)
-	logger.Log.Info(fmt.Sprintf("  End table: %v, ended at %v, total elapsed time: %v", t.Number, t.SimulationReport.End, t.SimulationReport.Duration))
+	t.SimulationReport.ElapsedTime = t.SimulationReport.Duration.String()
+	logger.Log.Info(fmt.Sprintf("  End table: %v, ended at %v, total elapsed time: %s", t.Number, t.SimulationReport.End, t.SimulationReport.Duration))
 }
 
 func (t *Table) dealCards() *cards.Card {

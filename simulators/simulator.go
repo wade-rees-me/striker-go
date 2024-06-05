@@ -40,7 +40,8 @@ type Simulation struct {
 	Name       string
 	Guid       string
 	Hostname   string
-	Duration   string
+	Duration   time.Duration
+	ElapsedTime string
 	Year       int
 	Month      int
 	Day        int
@@ -126,8 +127,9 @@ func (s *Simulation) RunSimulation() {
 	wg.Wait()
 
 	end := time.Now()
-	s.Duration = time.Since(start).Round(time.Second).String()
-	logger.Log.Info(fmt.Sprintf("Simulation %v, ended at %v, total elapsed time: %v", s.Name, end, s.Duration))
+	s.Duration = time.Since(start).Round(time.Second)
+	s.ElapsedTime = s.Duration.String()
+	logger.Log.Info(fmt.Sprintf("Simulation %v, ended at %v, total elapsed time: %s", s.Name, end, s.Duration))
 }
 
 func (s *Simulation) newPlayStrategy() *tables.PlayStrategy {
