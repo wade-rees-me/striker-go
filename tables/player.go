@@ -101,7 +101,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
 		p.PlaySplit(split, s, up)
 		return
 	}
-	for !p.stand(&p.Wager, up) {
+	for !p.Wager.Hand.Busted() && !p.stand(&p.Wager, up) {
 		logger.Log.Debug(fmt.Sprintf("  hit: %s vs %s", printHand(&p.Wager), up.Rank))
 		p.Wager.Hand.Draw(s.Draw())
 	}
@@ -129,14 +129,14 @@ func (p *Player) PlaySplit(w *Wager, s *cards.Shoe, up *cards.Card) {
 		p.PlaySplit(split, s, up)
 		return
 	}
-	if p.TableRules.HitSplitAces || !p.Wager.Hand.PairOf(cards.Ace) {
-		for !p.stand(w, up) {
+	if p.TableRules.HitSplitAces || !w.Hand.PairOf(cards.Ace) {
+		for !w.Hand.Busted() && !p.stand(w, up) {
 			w.Hand.Draw(s.Draw())
-			logger.Log.Debug(fmt.Sprintf("  split Hit split pair: %d vs %s", w.Hand.Total(), up.Rank))
+			logger.Log.Debug(fmt.Sprintf("  split Hit: %d vs %s", w.Hand.Total(), up.Rank))
 		}
 	}
-	logger.Log.Debug(fmt.Sprintf("  split Stand split pair: %d vs %s", w.Hand.Total(), up.Rank))
-	if p.Wager.Hand.Busted() {
+	logger.Log.Debug(fmt.Sprintf("  split Stand: %d vs %s", w.Hand.Total(), up.Rank))
+	if w.Hand.Busted() {
 		p.PlayerReport.Hand.HandsBusted++
 	}
 }
@@ -213,6 +213,9 @@ func printDealerHand(blackjack bool, busted bool, total int) string {
 	return fmt.Sprintf("%d", total)
 }
 func printHand(w *Wager) string {
+	if w.Hand.Busted() {
+		return fmt.Sprintf("busted %d", w.Hand.Total())
+	}
 	if w.Hand.Soft() {
 		return fmt.Sprintf("soft %d", w.Hand.Total())
 	}
