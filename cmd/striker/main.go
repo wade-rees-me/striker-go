@@ -6,7 +6,7 @@ import (
 
 	screen "github.com/aditya43/clear-shell-screen-golang"
 	"github.com/wade-rees-me/striker-go/arguments"
-	//"github.com/wade-rees-me/striker-go/simulators"
+	"github.com/wade-rees-me/striker-go/simulation"
 	"github.com/wade-rees-me/striker-go/database"
 	"github.com/wade-rees-me/striker-go/logger"
 	"github.com/wade-rees-me/striker-go/utilities"

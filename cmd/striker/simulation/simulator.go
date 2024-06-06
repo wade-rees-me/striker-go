@@ -1,4 +1,4 @@
-package simulators
+package simulation
 
 import (
 	"bytes"
