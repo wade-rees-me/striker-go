@@ -6,11 +6,11 @@ import (
 
 	screen "github.com/aditya43/clear-shell-screen-golang"
 	"github.com/wade-rees-me/striker-go/arguments"
-	"github.com/wade-rees-me/striker-go/constants"
+	//"github.com/wade-rees-me/striker-go/simulators"
 	"github.com/wade-rees-me/striker-go/database"
 	"github.com/wade-rees-me/striker-go/logger"
-	"github.com/wade-rees-me/striker-go/simulators"
 	"github.com/wade-rees-me/striker-go/utilities"
+	"github.com/wade-rees-me/striker-go/constants"
 )
 
 func main() {
