@@ -4,7 +4,30 @@ type Deck struct {
 	Cards []Card
 }
 
-func NewDeck(s []string, r map[string][]int, copies int) *Deck {
+var DeckOfPokerCards *Deck
+
+var pokerCards = map[string][]int{
+	"two":   {2, 0},
+	"three": {3, 1},
+	"four":  {4, 2},
+	"five":  {5, 3},
+	"six":   {6, 4},
+	"seven": {7, 5},
+	"eight": {8, 6},
+	"nine":  {9, 7},
+	"ten":   {10, 8},
+	"jack":  {10, 9},
+	"queen": {10, 10},
+	"king":  {10, 11},
+	"ace":   {11, 12},
+}
+var suits = []string{"spades", "diamond", "clubs", "hearts"}
+
+func init() {
+	DeckOfPokerCards = newDeck(suits, pokerCards, 1)
+}
+
+func newDeck(s []string, r map[string][]int, copies int) *Deck {
 	deck := new(Deck)
 	for i := 0; i < copies; i++ {
 		for _, suit := range s {
@@ -15,14 +38,4 @@ func NewDeck(s []string, r map[string][]int, copies int) *Deck {
 		}
 	}
 	return deck
-}
-
-func (deck *Deck) Search(suit, rank string) []Card {
-	var cards []Card
-	for _, card := range deck.Cards {
-		if (suit == "*" || suit == card.Suit) && (rank == "*" || rank == card.Rank) {
-			cards = append(cards, card)
-		}
-	}
-	return cards
 }

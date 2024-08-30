@@ -7,7 +7,7 @@ import (
 // General constants
 const (
 	StrikerVersion = "v01.00.01"
-	TimeLayout = "2006-01-02 15:04:05 -0700 MST"
+	TimeLayout     = "2006-01-02 15:04:05 -0700 MST"
 )
 
 // Simulation constants
@@ -24,9 +24,8 @@ const (
 	MaximumBet = 98
 )
 
+var StrategyUrl = os.Getenv("STRIKER_URL_ACE")
+var StrategyMlbUrl = os.Getenv("STRIKER_URL_MLB")
 var RulesUrl = os.Getenv("STRIKER_URL_RULES")
 var SimulationUrl = os.Getenv("STRIKER_URL_SIMULATION")
-var StrategyUrl = os.Getenv("STRIKER_URL_STRATEGY")
 var StrategyBasicUrl = os.Getenv("STRIKER_URL_BASIC")
-var MachineCounterUrl = os.Getenv("STRIKER_URL_MACHINE")
-

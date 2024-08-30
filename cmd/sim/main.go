@@ -3,10 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"time"
 
-	screen "github.com/aditya43/clear-shell-screen-golang"
 	"github.com/google/uuid"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
@@ -14,21 +12,12 @@ import (
 	"github.com/wade-rees-me/striker-go/cmd/sim/simulator"
 )
 
-//
 func main() {
 	flag.Parse()
 
-	if arguments.CLFlags.HelpFlag || len(flag.Args()) > 0 {
-		flag.PrintDefaults()
-		return
+	if arguments.CLStrategy.StrikerFlag {
+		constants.StrategyUrl = constants.StrategyMlbUrl
 	}
-	if arguments.CLFlags.VersionFlag {
-		log.Printf("Version: %s\n", constants.StrikerVersion)
-		return
-	}
-
-	screen.Clear()
-	screen.MoveTopLeft()
 
 	parameters := new(simulator.SimulationParameters)
 	parameters.Guid = uuid.New().String()
@@ -41,14 +30,8 @@ func main() {
 	parameters.Rounds = arguments.CLSimulation.Rounds
 	parameters.BlackjackPays = arguments.CLSimulation.BlackjackPays
 	parameters.Penetration = arguments.CLSimulation.Penetration
-	parameters.OptimumTables = constants.MinimumBet
-	if parameters.Tables == 1 {
-		parameters.Tables = parameters.OptimumTables
-		parameters.Rounds /= parameters.OptimumTables
-	}
-
-	simulator.LoadTableRules(parameters.Decks)
 	parameters.TableRules = &simulator.TableRules
 
+	simulator.LoadTableRules(parameters.Decks)
 	simulator.RunOnce(parameters)
 }

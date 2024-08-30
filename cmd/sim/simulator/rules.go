@@ -4,13 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
-)
 
-type RulesDatabaseTable struct {
-	Playbook string `json:"playbook"`
-	Payload   string `json:"payload"`
-}
+	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
+)
 
 type RulesTableStruct struct {
 	Playbook          string  `json:"playbook"`
@@ -24,17 +20,14 @@ type RulesTableStruct struct {
 	Penetration       float64 `json:"penetration"`
 }
 
-var RulesUrl = os.Getenv("STRIKER_URL_RULES")
 var TableRules RulesTableStruct
 
-//
 func LoadTableRules(decks string) {
-	if err := FetchRulesTable("http://" + RulesUrl + "/" + decks); err != nil {
+	if err := FetchRulesTable("http://" + constants.RulesUrl + "/" + decks); err != nil {
 		panic(err.Error())
 	}
 }
 
-//
 func FetchRulesTable(url string) error {
 	response, err := http.Get(url)
 	if err != nil {
@@ -52,4 +45,3 @@ func FetchRulesTable(url string) error {
 	}
 	return nil
 }
-

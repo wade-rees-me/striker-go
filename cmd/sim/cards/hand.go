@@ -1,9 +1,5 @@
 package cards
 
-import (
-	"fmt"
-)
-
 type Hand struct {
 	Cards     []Card // Cards in the hand
 	HandTotal int    // Total value of the hand
@@ -36,8 +32,8 @@ func (h *Hand) Pair() bool {
 	return len(h.Cards) == 2 && h.Cards[0].Rank == h.Cards[1].Rank
 }
 
-func (h *Hand) PairOf(r string) bool {
-	return h.Pair() && (r == h.Cards[0].Rank)
+func (h *Hand) PairOfAces() bool {
+	return h.Pair() && ("ace" == h.Cards[0].Rank)
 }
 
 func (h *Hand) Busted() bool {
@@ -50,14 +46,6 @@ func (h *Hand) Soft() bool {
 
 func (h *Hand) Total() int {
 	return h.HandTotal
-}
-
-func (h *Hand) FirstTwoCardTotal() int {
-	return h.HandTotal
-}
-
-func (h *Hand) GetCard(i int) *Card {
-	return &h.Cards[i]
 }
 
 func (h *Hand) Soft17() bool {
@@ -87,11 +75,4 @@ func (h *Hand) totalHand() {
 		h.HandTotal -= 10
 		h.SoftAce--
 	}
-}
-
-func (h *Hand) ToString() string {
-	if h.Soft() {
-		return fmt.Sprintf("soft %d", h.Total())
-	}
-	return fmt.Sprintf("hard %d", h.Total())
 }

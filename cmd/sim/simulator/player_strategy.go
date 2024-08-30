@@ -1,8 +1,8 @@
 package simulator
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -142,7 +142,7 @@ func buildUrl(baseUrl string, seenData *[13]int, haveData *[13]int, pair int, pl
 	params.Add("up", fmt.Sprintf("%d", up))
 	params.Add("pair", fmt.Sprintf("%d", pair))
 
-	fullUrl, err := url.Parse(fmt.Sprintf("http://%s/%s", constants.StrategyBasicUrl, baseUrl))
+	fullUrl, err := url.Parse(fmt.Sprintf("http://%s/%s", constants.StrategyUrl, baseUrl))
 	if err != nil {
 		return baseUrl
 	}

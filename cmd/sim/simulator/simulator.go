@@ -1,12 +1,11 @@
 package simulator
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
-
-	"bytes"
 	"io"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -14,7 +13,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
-	//"github.com/wade-rees-me/striker-go/cmd/sim/utilities"
 )
 
 type Simulation struct {
@@ -30,19 +28,62 @@ type Simulation struct {
 	TableList  []Table
 }
 
+type SimulationDatabaseTable struct {
+	Playbook    string `json:"playbook"`
+	Guid        string `json:"guid"`
+	Simulator   string `json:"simulator"`
+	Summary     string `json:"summary"`
+	Simulations string `json:"simulations"`
+	Rounds      string `json:"rounds"`
+	Hands       string `json:"hands"`
+	TotalBet    string `json:"totalbet"`
+	TotalWon    string `json:"totalwon"`
+	Advantage   string `json:"advantage"`
+	TotalTime   string `json:"totaltime"`
+	AverageTime string `json:"averagetime"`
+	Parameters  string `json:"parameters"`
+	Payload     string `json:"payload"`
+}
+
+type SimulationParameters struct {
+	Guid          string
+	Processor     string
+	Timestamp     string
+	Decks         string // single-deck
+	Strategy      string // basic
+	Playbook      string // single-deck-basic
+	BlackjackPays string
+	Tables        int64
+	Rounds        int64
+	NumberOfDecks int
+	Penetration   float64
+	OptimumTables int64
+	TableRules    *RulesTableStruct
+}
+
+type SimulationReport struct {
+	TotalRounds int64
+	TotalHands  int64
+	TotalBet    int64
+	TotalWon    int64
+	Start       time.Time
+	End         time.Time
+	Duration    time.Duration
+}
+
 func NewSimulation(parameters *SimulationParameters) *Simulation {
 	s := new(Simulation)
 	t := time.Now()
 	s.Year = t.Year()
 	s.Month = int(t.Month())
 	s.Day = t.Day()
-	s.Name = fmt.Sprintf("go-striker-%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
+	s.Name = fmt.Sprintf("striker-go--%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
 	s.Guid = uuid.New().String()
 	s.Parameters = parameters
 
 	for tableNumber := int64(1); tableNumber <= parameters.Tables; tableNumber++ {
 		table := NewTable(tableNumber, parameters)
-		player := NewPlayer(parameters, table.Shoe.ShoeReport.NumberOfCards)
+		player := NewPlayer(parameters, table.Shoe.NumberOfCards)
 		table.AddPlayer(player)
 		s.TableList = append(s.TableList, *table)
 	}
@@ -51,7 +92,7 @@ func NewSimulation(parameters *SimulationParameters) *Simulation {
 }
 
 func RunOnce(parameters *SimulationParameters) {
-	log.Printf("Starting striker simulation: ...\n")
+	log.Printf("Starting striker-go simulation: ...\n")
 	if err := SimulatorProcess(NewSimulation(parameters)); err != nil {
 		log.Printf("Simulation failed: %s", err)
 	}

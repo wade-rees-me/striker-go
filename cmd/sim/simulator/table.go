@@ -1,7 +1,6 @@
 package simulator
 
 import (
-	//"fmt"
 	"log"
 	"sync"
 	"time"
@@ -10,7 +9,7 @@ import (
 )
 
 type Table struct {
-	Index	   int64
+	Index      int64
 	Dealer     *cards.Dealer
 	Player     *Player
 	Shoe       cards.Shoe
@@ -23,8 +22,7 @@ func NewTable(index int64, parameters *SimulationParameters) *Table {
 	t.Index = index
 	t.Parameters = parameters
 	t.Dealer = cards.NewDealer(parameters.TableRules.HitSoft17)
-	deck := cards.NewDeck(cards.Suits, cards.Blackjack, 1)
-	t.Shoe = *cards.NewShoe(*deck, parameters.NumberOfDecks, parameters.Penetration)
+	t.Shoe = *cards.NewShoe(cards.DeckOfPokerCards, parameters.NumberOfDecks, parameters.Penetration)
 	return t
 }
 

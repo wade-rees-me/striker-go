@@ -1,15 +1,11 @@
 package cards
 
-import (
-	"fmt"
-)
-
 type Wager struct {
-	Hand		 Hand  // The hand associated with the wager
-	AmountBet	 int64 // The amount of the initial bet
-	AmountWon	 int64 // The amount won from the wager
-	DoubleBet	 int64 // The amount of the double bet
-	DoubleWon	 int64 // The amount won from the wager
+	Hand         Hand  // The hand associated with the wager
+	AmountBet    int64 // The amount of the initial bet
+	AmountWon    int64 // The amount won from the wager
+	DoubleBet    int64 // The amount of the double bet
+	DoubleWon    int64 // The amount won from the wager
 	InsuranceBet int64
 	InsuranceWon int64
 }
@@ -35,7 +31,7 @@ func (w *Wager) Reset() {
 }
 
 func (w *Wager) Bet(b int64) {
-	if b % 2 != 0 {
+	if b%2 != 0 {
 		panic("All bets must be in multiples of 2.")
 	}
 	w.AmountBet = b
@@ -72,11 +68,4 @@ func (w *Wager) WonInsurance() {
 
 func (w *Wager) LostInsurance() {
 	w.InsuranceWon = -w.InsuranceBet
-}
-
-func (w *Wager) ToString() string {
-	if w.Hand.Soft() {
-		return fmt.Sprintf("bet: %d + %d, soft %d (%s)", w.AmountBet, w.DoubleBet, w.Hand.Total(), w.Hand.ToString())
-	}
-	return fmt.Sprintf("bet: %d + %d, hard %d (%s)", w.AmountBet, w.DoubleBet, w.Hand.Total(), w.Hand.ToString())
 }

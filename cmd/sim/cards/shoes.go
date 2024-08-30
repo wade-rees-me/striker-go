@@ -5,15 +5,11 @@ import (
 )
 
 type Shoe struct {
-	cards        []Card // Cards currently in the shoe
-	inplay       []Card // Cards that are in play
-	discards     []Card // Cards that have been discarded
-	downcard     Card   // Dealer hole card
-	ForceShuffle bool   // Flag to force a shuffle
-	ShoeReport   ShoeReport
-}
-
-type ShoeReport struct {
+	cards            []Card // Cards currently in the shoe
+	inplay           []Card // Cards that are in play
+	discards         []Card // Cards that have been discarded
+	downcard         Card   // Dealer hole card
+	ForceShuffle     bool   // Flag to force a shuffle
 	NumberOfDecks    int
 	NumberOfCards    int
 	CutCard          int
@@ -21,18 +17,18 @@ type ShoeReport struct {
 	NumberOutOfCards int64
 }
 
-func NewShoe(deck Deck, numberOfDecks int, penetration float64) *Shoe {
+func NewShoe(deck *Deck, numberOfDecks int, penetration float64) *Shoe {
 	shoe := new(Shoe)
-	shoe.ShoeReport.NumberOfDecks = numberOfDecks
+	shoe.NumberOfDecks = numberOfDecks
 
-	for i := 0; i < shoe.ShoeReport.NumberOfDecks; i++ {
+	for i := 0; i < shoe.NumberOfDecks; i++ {
 		shoe.discards = append(shoe.discards, deck.Cards...)
 	}
 
-	shoe.ShoeReport.NumberOfCards = len(shoe.discards)
-	shoe.ShoeReport.CutCard = int(float64(shoe.ShoeReport.NumberOfCards) * penetration)
+	shoe.NumberOfCards = len(shoe.discards)
+	shoe.CutCard = int(float64(shoe.NumberOfCards) * penetration)
 
-	for i := 0; i < shoe.ShoeReport.NumberOfCards; i++ {
+	for i := 0; i < shoe.NumberOfCards; i++ {
 		shoe.discards[i].Index = i
 	}
 
@@ -50,7 +46,7 @@ func (s *Shoe) Shuffle() (err error) {
 
 func (s *Shoe) ShuffleDiscards() (err error) {
 	s.ForceShuffle = true
-	s.ShoeReport.NumberOutOfCards++
+	s.NumberOutOfCards++
 	return s.ShuffleDiscardsFisherYates()
 }
 
@@ -59,14 +55,14 @@ func (s *Shoe) ShuffleDiscardsFisherYates() (err error) {
 	s.cards = append(s.cards, s.discards...)
 	s.discards = nil
 	s.Discard(s.Draw()) // Burn a card
-	s.ShoeReport.NumberOfShuffles++
+	s.NumberOfShuffles++
 	return nil
 }
 
 func (s *Shoe) ShouldShuffle() bool {
 	s.discards = append(s.discards, s.inplay...)
 	s.inplay = nil
-	return (len(s.cards) < (s.ShoeReport.NumberOfCards - s.ShoeReport.CutCard)) || s.ForceShuffle
+	return (len(s.cards) < (s.NumberOfCards - s.CutCard)) || s.ForceShuffle
 }
 
 func (s *Shoe) Draw() *Card {
@@ -93,20 +89,4 @@ func (s *Shoe) Discard(card *Card) {
 			s.inplay = append(s.inplay[:i], s.inplay[i+1:]...)
 		}
 	}
-}
-
-func (s *Shoe) CardsUndealt() int {
-	return len(s.cards)
-}
-
-func (s *Shoe) CardsInplay() int {
-	return len(s.inplay)
-}
-
-func (s *Shoe) CardsDiscarded() int {
-	return len(s.discards)
-}
-
-func (s *Shoe) GetReport() *ShoeReport {
-	return &s.ShoeReport
 }

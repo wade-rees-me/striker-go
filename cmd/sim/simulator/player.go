@@ -71,7 +71,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
 	if p.Wager.Hand.Pair() && p.GetSplit(p.Wager.Hand.Cards[0].Value, up.Offset) {
 		split := &p.Splits[p.SplitCount]
 		p.SplitCount++
-		if p.Wager.Hand.PairOf(cards.Ace) {
+		if p.Wager.Hand.PairOfAces() {
 			if !p.Parameters.TableRules.ResplitAces && !p.Parameters.TableRules.HitSplitAces {
 				p.Wager.SplitWager(split)
 				p.Wager.Hand.Draw(s.Draw())
@@ -104,7 +104,7 @@ func (p *Player) PlaySplit(w *cards.Wager, s *cards.Shoe, up *cards.Card) {
 
 	if w.Hand.Pair() && p.SplitCount < constants.MaxSplitHands {
 		if p.GetSplit(w.Hand.Cards[0].Value, up.Offset) {
-			if !w.Hand.PairOf(cards.Ace) || (w.Hand.PairOf(cards.Ace) && p.Parameters.TableRules.ResplitAces) {
+			if !w.Hand.PairOfAces() || (w.Hand.PairOfAces() && p.Parameters.TableRules.ResplitAces) {
 				split := &p.Splits[p.SplitCount]
 				p.SplitCount++
 				w.SplitWager(split)
