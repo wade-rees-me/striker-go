@@ -10,21 +10,22 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	//"github.com/google/uuid"
+	"github.com/dustin/go-humanize"
 
+	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
 type Simulation struct {
 	Name       string
-	Guid       string
 	Simulator  string
 	Playbook   string
 	Year       int
 	Month      int
 	Day        int
-	Parameters *SimulationParameters
-	Report     SimulationReport
+	Parameters *arguments.Parameters
+	Report     arguments.Report
 	TableList  []Table
 }
 
@@ -36,70 +37,37 @@ type SimulationDatabaseTable struct {
 	Simulations string `json:"simulations"`
 	Rounds      string `json:"rounds"`
 	Hands       string `json:"hands"`
-	TotalBet    string `json:"totalbet"`
-	TotalWon    string `json:"totalwon"`
+	TotalBet    string `json:"bet"`
+	TotalWon    string `json:"won"`
 	Advantage   string `json:"advantage"`
-	TotalTime   string `json:"totaltime"`
-	AverageTime string `json:"averagetime"`
+	TotalTime   string `json:"time"`
+	AverageTime string `json:"average"`
 	Parameters  string `json:"parameters"`
 	Payload     string `json:"payload"`
 }
 
-type SimulationParameters struct {
-	Guid          string
-	Processor     string
-	Timestamp     string
-	Decks         string // single-deck
-	Strategy      string // basic
-	Playbook      string // single-deck-basic
-	BlackjackPays string
-	Tables        int64
-	Rounds        int64
-	NumberOfDecks int
-	Penetration   float64
-	OptimumTables int64
-	TableRules    *RulesTableStruct
-}
-
-type SimulationReport struct {
-	TotalRounds int64
-	TotalHands  int64
-	TotalBet    int64
-	TotalWon    int64
-	Start       time.Time
-	End         time.Time
-	Duration    time.Duration
-}
-
-func NewSimulation(parameters *SimulationParameters) *Simulation {
+func NewSimulation(parameters *arguments.Parameters) *Simulation {
 	s := new(Simulation)
 	t := time.Now()
 	s.Year = t.Year()
 	s.Month = int(t.Month())
 	s.Day = t.Day()
 	s.Name = fmt.Sprintf("striker-go--%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
-	s.Guid = uuid.New().String()
 	s.Parameters = parameters
 
-	for tableNumber := int64(1); tableNumber <= parameters.Tables; tableNumber++ {
-		table := NewTable(tableNumber, parameters)
+		table := NewTable(1, parameters)
 		player := NewPlayer(parameters, table.Shoe.NumberOfCards)
 		table.AddPlayer(player)
 		s.TableList = append(s.TableList, *table)
-	}
 
 	return s
 }
 
-func RunOnce(parameters *SimulationParameters) {
-	log.Printf("Starting striker-go simulation: ...\n")
-	if err := SimulatorProcess(NewSimulation(parameters)); err != nil {
-		log.Printf("Simulation failed: %s", err)
-	}
-}
-
-func SimulatorProcess(s *Simulation) error {
+//
+func (s *Simulation) SimulatorProcess() error {
+	s.Parameters.Logger.Simulation(fmt.Sprintf("\n  Start: simulation %s\n", s.Name))
 	s.RunSimulation()
+	s.Parameters.Logger.Simulation(fmt.Sprintf("  End: simulation\n"))
 
 	tbs := new(SimulationDatabaseTable)
 
@@ -108,7 +76,7 @@ func SimulatorProcess(s *Simulation) error {
 		tbs.Parameters = string(jsonData)
 	}
 
-	tbs.Guid = s.Parameters.Guid
+	tbs.Guid = s.Parameters.Name
 	tbs.Playbook = s.Parameters.Playbook
 	tbs.Simulator = constants.StrikerWhoAmI
 	tbs.Summary = "no"
@@ -119,40 +87,56 @@ func SimulatorProcess(s *Simulation) error {
 	tbs.TotalWon = fmt.Sprintf("%d", s.Report.TotalWon)
 	tbs.TotalTime = fmt.Sprintf("%d", int64(s.Report.Duration.Seconds()))
 	tbs.AverageTime = fmt.Sprintf("%06.2f seconds", s.Report.Duration.Seconds()*float64(1000000)/float64(s.Report.TotalHands))
-	tbs.Advantage = fmt.Sprintf("%+04.3f%%", (float64(s.Report.TotalWon) / float64(s.Report.TotalBet) * float64(100)))
+	tbs.Advantage = fmt.Sprintf("%+04.3f %%", (float64(s.Report.TotalWon) / float64(s.Report.TotalBet) * float64(100)))
 
 	fmt.Printf("\n")
-	fmt.Printf("Number of rounds:  %s\n", tbs.Rounds)
-	fmt.Printf("Number of hands:   %d\n", s.Report.TotalHands)
-	fmt.Printf("Total bet:         %d, average bet per hand: %.2f\n", s.Report.TotalBet, (float64(s.Report.TotalBet) / float64(s.Report.TotalHands)))
-	fmt.Printf("Total won:         %d, average win per hand: %.2f\n", s.Report.TotalWon, (float64(s.Report.TotalWon) / float64(s.Report.TotalHands)))
-	fmt.Printf("Total time:        %s seconds\n", tbs.TotalTime)
-	fmt.Printf("Average time:      %s per 1,000,000 hands\n", tbs.AverageTime)
-	fmt.Printf("Player advantage:  %s\n", tbs.Advantage) /* House Edge (%)=(Total Loss/Total Bet)×100 */
+    s.Parameters.Logger.Simulation("  -- results ---------------------------------------------------------------------\n");
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s\n", "Number of hands", humanize.Comma(s.Report.TotalHands)))
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s\n", "Number of rounds",  humanize.Comma(s.Report.TotalRounds)))
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s, %+04.3f average bet per hand\n", "Total bet", humanize.Comma(s.Report.TotalBet), (float64(s.Report.TotalBet) / float64(s.Report.TotalHands))))
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s, %+04.3f average win per hand\n", "Total won", humanize.Comma(s.Report.TotalWon), (float64(s.Report.TotalWon) / float64(s.Report.TotalHands))))
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s seconds\n", "Total time", humanize.Comma(int64(s.Report.Duration.Seconds()))))
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.AverageTime))
+	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s\n", "Player advantage", tbs.Advantage)) /* House Edge (%)=(Total Loss/Total Bet)×100 */
+    s.Parameters.Logger.Simulation("  --------------------------------------------------------------------------------\n\n");
 	fmt.Printf("\n")
 
-	if err := InsertSimulationTable(tbs, s.Playbook); err != nil {
+    s.Parameters.Logger.Simulation("  -- insert ----------------------------------------------------------------------\n");
+	if err := InsertSimulationTable(tbs, tbs.Playbook); err != nil {
 		log.Printf("Failed to insert into Simulation table: %s", err)
 		return err
 	}
+    s.Parameters.Logger.Simulation("  --------------------------------------------------------------------------------\n");
 
 	return nil
 }
 
 func (s *Simulation) RunSimulation() {
 	var wg sync.WaitGroup
+	status := make(chan string) // Channel to pass status updates
 
-	log.Printf("Simulation %v, started at %v", s.Name, time.Now())
 	wg.Add(len(s.TableList))
 	for i := range s.TableList {
 		t := &s.TableList[i]
-		if "mimic" == s.Parameters.Strategy {
-			go t.SessionMimic(&wg)
-		} else {
-			go t.Session(&wg)
-		}
+		//s.Parameters.Logger.Simulation(fmt.Sprintf("    Start: %s table session\n", s.Parameters.Strategy));
+		go t.Session(&wg, "mimic" == s.Parameters.Strategy, status)
+		//s.Parameters.Logger.Simulation(fmt.Sprintf("    End: table session\n"));
 	}
-	wg.Wait()
+	//wg.Wait()
+
+	// Goroutine to close the status channel after all processes finish
+	go func() {
+		wg.Wait() // Wait for all goroutines to complete
+		close(status) // Close the status channel when done
+	}()
+
+	// Continuously receive and print status updates from the channel
+	for update := range status {
+		fmt.Print(update)
+	}
+/*
+	fmt.Println("All processes completed.")
+*/
 
 	// Merge tables into one report
 	for i := range s.TableList {
@@ -166,6 +150,44 @@ func (s *Simulation) RunSimulation() {
 	}
 }
 
+
+
+/*
+func process(id int, wg *sync.WaitGroup, status chan string) {
+	defer wg.Done() // Notify the WaitGroup when done
+
+	for i := 1; i <= 10; i++ {
+		time.Sleep(time.Millisecond * 500) // Simulate work
+		// Send status update to the channel
+		status <- fmt.Sprintf("Process %d is at step %d\n", id, i)
+	}
+}
+
+func main() {
+	var wg sync.WaitGroup   // WaitGroup to wait for all goroutines to complete
+	status := make(chan string) // Channel to pass status updates
+
+	// Start two concurrent processes
+	wg.Add(2) // We have two goroutines to wait for
+	go process(1, &wg, status) // Start process 1
+	go process(2, &wg, status) // Start process 2
+
+	// Goroutine to close the status channel after all processes finish
+	go func() {
+		wg.Wait() // Wait for all goroutines to complete
+		close(status) // Close the status channel when done
+	}()
+
+	// Continuously receive and print status updates from the channel
+	for update := range status {
+		fmt.Print(update)
+	}
+
+	fmt.Println("All processes completed.")
+}
+*/
+
+
 func InsertSimulationTable(s *SimulationDatabaseTable, playbook string) error {
 	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationUrl, s.Simulator, playbook, s.Guid)
 	//log.Printf("Insert Simulation: %s\n", url)
@@ -176,7 +198,7 @@ func InsertSimulationTable(s *SimulationDatabaseTable, playbook string) error {
 		fmt.Println("Error marshalling JSON:", err)
 		return nil
 	}
-	log.Printf("Insert Simulation: %v\n", string(jsonData))
+	//log.Printf("Insert Simulation: %v\n", string(jsonData))
 
 	// Create a new POST request with JSON data
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))

@@ -1,37 +1,52 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
-	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/simulator"
+	"github.com/wade-rees-me/striker-go/cmd/sim/logger"
+	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
+//
 func main() {
-	flag.Parse()
+	args := arguments.NewArguments()
+	args.ParseArguments()
 
-	if arguments.CLStrategy.StrikerFlag {
-		constants.StrategyUrl = constants.StrategyMlbUrl
-	}
+	name := generateName()
+    rules := &table.Rules{}
+    if err := rules.LoadTable(args.GetDecks()); err != nil {
+        log.Fatalf("Failed to load rules: %v", err)
+    }
 
-	parameters := new(simulator.SimulationParameters)
-	parameters.Guid = uuid.New().String()
-	parameters.Processor = constants.StrikerWhoAmI
-	parameters.Timestamp = (time.Now()).Format(constants.TimeLayout)
-	parameters.Decks, parameters.NumberOfDecks = arguments.CLTable.Get()
-	parameters.Strategy = arguments.CLStrategy.Get()
-	parameters.Playbook = fmt.Sprintf("%s-%s", parameters.Decks, parameters.Strategy)
-	parameters.Tables = arguments.CLSimulation.Tables
-	parameters.Rounds = arguments.CLSimulation.Rounds
-	parameters.BlackjackPays = arguments.CLSimulation.BlackjackPays
-	parameters.Penetration = arguments.CLSimulation.Penetration
-	parameters.TableRules = &simulator.TableRules
+	logger := logger.NewLogger(constants.StrikerWhoAmI,  args.NumberOfHands < 1000)
+    params := arguments.NewParameters(name, args.GetDecks(), args.GetStrategy(), args.GetNumberOfDecks(), args.NumberOfHands, rules, logger)
 
-	simulator.LoadTableRules(parameters.Decks)
-	simulator.RunOnce(parameters)
+    logger.Simulation(fmt.Sprintf("Start: %s ...\n\n", name))
+    logger.Simulation("  -- arguments -------------------------------------------------------------------\n");
+    params.Print();
+    rules.Print(logger);
+    logger.Simulation("  --------------------------------------------------------------------------------\n");
+
+	simulator := simulator.NewSimulation(params);
+	simulator.SimulatorProcess()
+    logger.Simulation(fmt.Sprintf("End: %s\n\n", name))
 }
+
+//
+func generateName() string {
+	t := time.Now()
+
+	year := t.Year()
+	month := int(t.Month())
+	day := t.Day()
+	unixTime := t.Unix()
+
+	name := fmt.Sprintf("%s_%04d_%02d_%02d_%012d", constants.StrikerWhoAmI, year, month, day, unixTime)
+	return name
+}
+

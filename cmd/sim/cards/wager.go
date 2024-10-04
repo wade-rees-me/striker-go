@@ -10,6 +10,11 @@ type Wager struct {
 	InsuranceWon int64
 }
 
+const (
+	MinimumBet = 2
+	MaximumBet = 98
+)
+
 func NewWager() *Wager {
 	return new(Wager)
 }
@@ -30,11 +35,8 @@ func (w *Wager) Reset() {
 	w.InsuranceWon = 0
 }
 
-func (w *Wager) Bet(b int64) {
-	if b%2 != 0 {
-		panic("All bets must be in multiples of 2.")
-	}
-	w.AmountBet = b
+func (w *Wager) Bet(bet int64) {
+	w.AmountBet = (ClampInt(bet, MinimumBet, MaximumBet) + 1) / 2 * 2
 }
 
 func (w *Wager) Double() {
@@ -69,3 +71,14 @@ func (w *Wager) WonInsurance() {
 func (w *Wager) LostInsurance() {
 	w.InsuranceWon = -w.InsuranceBet
 }
+
+func ClampInt(value, min, max int64) int64 {
+	if value < min {
+		return min
+	}
+	if value > max {
+		return max
+	}
+	return value
+}
+

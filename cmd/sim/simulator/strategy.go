@@ -34,107 +34,59 @@ func (p *Player) GetBet() int {
 	if err = json.Unmarshal([]byte(body), &aux); err != nil {
 		panic(err)
 	}
-	return ClampInt(aux.Bet, constants.MinimumBet, constants.MaximumBet)
+	return aux.Bet
 }
 
 func (p *Player) GetInsurance() bool {
-	getUrl := buildUrl("insurance", p.SeenCards, nil, 0, p.Parameters.Playbook, p.NumberOfCards, 0)
-	response, err := http.Get(getUrl)
-	if err != nil {
-		return false
-	}
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false
-	}
-
-	if err = json.Unmarshal([]byte(body), &aux); err != nil {
-		return false
-	}
-	//if aux.Insurance {fmt.Printf("Insurance: %v\n", aux.Insurance)}
+	p.GetHTTP(buildUrl("insurance", p.SeenCards, nil, 0, p.Parameters.Playbook, p.NumberOfCards, 0))
 	return aux.Insurance
 }
 
 func (p *Player) GetSurrender(have *[13]int, up int) bool {
-	getUrl := buildUrl("surrender", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up)
-	response, err := http.Get(getUrl)
-	if err != nil {
-		return false
-	}
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false
-	}
-
-	if err = json.Unmarshal([]byte(body), &aux); err != nil {
-		return false
-	}
-	//if aux.Surrender {fmt.Printf("Surrender: %v\n", aux.Surrender)}
+	p.GetHTTP(buildUrl("surrender", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Surrender
 }
 
 func (p *Player) GetDouble(have *[13]int, up int) bool {
-	getUrl := buildUrl("double", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up)
-	response, err := http.Get(getUrl)
-	if err != nil {
-		return false
-	}
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false
-	}
-
-	if err = json.Unmarshal([]byte(body), &aux); err != nil {
-		return false
-	}
+	p.GetHTTP(buildUrl("double", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Double
 }
 
 func (p *Player) GetSplit(pair, up int) bool {
-	getUrl := buildUrl("split", p.SeenCards, nil, pair, p.Parameters.Playbook, p.NumberOfCards, up)
-	response, err := http.Get(getUrl)
-	if err != nil {
-		return false
-	}
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return false
-	}
-
-	if err = json.Unmarshal([]byte(body), &aux); err != nil {
-		return false
-	}
-	//if aux.Split {fmt.Printf("Split: %v\n", aux.Split)}
+	p.GetHTTP(buildUrl("split", p.SeenCards, nil, pair, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Split
 }
 
 func (p *Player) GetStand(have *[13]int, up int) bool {
-	getUrl := buildUrl("stand", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up)
-	response, err := http.Get(getUrl)
+	p.GetHTTP(buildUrl("stand", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
+	return aux.Stand
+}
+
+//
+func (p *Player) GetPlay(have *[13]int, pair, up int) bool {
+	p.GetHTTP(buildUrl("play", p.SeenCards, have, pair, p.Parameters.Playbook, p.NumberOfCards, up))
+	return aux.Stand
+}
+
+//
+func (p *Player) GetHTTP(url string) {
+	response, err := http.Get(url)
 	if err != nil {
-		return false
+		panic(err)
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return false
+		panic(err)
 	}
 
 	if err = json.Unmarshal([]byte(body), &aux); err != nil {
-		return false
+		panic(err)
 	}
-	return aux.Stand
 }
 
+//
 func buildUrl(baseUrl string, seenData *[13]int, haveData *[13]int, pair int, playbook string, cards, up int) string {
 	params := url.Values{}
 	params.Add("playbook", playbook)
@@ -164,6 +116,7 @@ func buildUrl(baseUrl string, seenData *[13]int, haveData *[13]int, pair int, pl
 	return fullUrl.String()
 }
 
+/*
 func ClampInt(value, min, max int) int {
 	if value < min {
 		return min
@@ -173,3 +126,4 @@ func ClampInt(value, min, max int) int {
 	}
 	return value
 }
+*/

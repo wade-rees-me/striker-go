@@ -1,9 +1,11 @@
 package simulator
 
 import (
-	"fmt"
+	//"fmt"
 
+	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
+	//"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
@@ -11,22 +13,16 @@ type Player struct {
 	Wager         cards.Wager
 	Splits        [constants.MaxSplitHands]cards.Wager
 	SplitCount    int
-	BlackjackPays int64
-	BlackjackBets int64
-	Parameters    *SimulationParameters
-	Report        SimulationReport
+	Parameters    *arguments.Parameters
+	Report        arguments.Report
 	NumberOfCards int
 	SeenCards     *[13]int
 }
 
-func NewPlayer(parameters *SimulationParameters, numberOfCards int) *Player {
+func NewPlayer(parameters *arguments.Parameters, numberOfCards int) *Player {
 	p := new(Player)
 	p.Parameters = parameters
 	p.NumberOfCards = numberOfCards
-	_, err := fmt.Sscanf(parameters.BlackjackPays, "%d:%d", &p.BlackjackPays, &p.BlackjackBets)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to parse blackjack pays: %v", err))
-	}
 	return p
 }
 
@@ -34,13 +30,17 @@ func (p *Player) Shuffle() {
 	p.SeenCards = new([13]int)
 }
 
-func (p *Player) PlaceBet() {
+func (p *Player) PlaceBet(mimic bool) {
 	p.Wager.Reset()
 	for i := 0; i < len(p.Splits); i++ {
 		p.Splits[i].Reset()
 	}
 	p.SplitCount = 0
-	p.Wager.Bet(int64(p.GetBet()))
+	if(mimic) {
+		p.Wager.Bet(int64(constants.MinimumBet))
+	} else {
+		p.Wager.Bet(int64(p.GetBet()))
+	}
 }
 
 func (p *Player) Insurance() {
@@ -49,20 +49,28 @@ func (p *Player) Insurance() {
 	}
 }
 
-func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
+func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 	if p.Wager.Hand.Blackjack() {
 		return
 	}
 
+    if(mimic) {
+		for !p.MimicStand() {
+			p.Wager.Hand.Draw(s.Draw())
+		}
+        return;
+	}
+
 	haveCards := getHave(&p.Wager.Hand)
-	doSurrender := p.GetSurrender(haveCards, up.Offset)
-	if doSurrender {
+	//doSurrender := p.GetSurrender(haveCards, up.Offset)
+	//if doSurrender {
+	if p.GetSurrender(haveCards, up.Offset) {
 		p.Wager.Hand.Surrender = true
 		return
 	}
 
 	doDouble := p.GetDouble(haveCards, up.Offset)
-	if doDouble && (p.Parameters.TableRules.DoubleAnyTwoCards || (p.Wager.Hand.Total() == 10 || p.Wager.Hand.Total() == 11)) {
+	if doDouble && (p.Parameters.Rules.DoubleAnyTwoCards || (p.Wager.Hand.Total() == 10 || p.Wager.Hand.Total() == 11)) {
 		p.Wager.Double()
 		p.Wager.Hand.Draw(s.Draw())
 		return
@@ -72,7 +80,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
 		split := &p.Splits[p.SplitCount]
 		p.SplitCount++
 		if p.Wager.Hand.PairOfAces() {
-			if !p.Parameters.TableRules.ResplitAces && !p.Parameters.TableRules.HitSplitAces {
+			if !p.Parameters.Rules.ResplitAces && !p.Parameters.Rules.HitSplitAces {
 				p.Wager.SplitWager(split)
 				p.Wager.Hand.Draw(s.Draw())
 				split.Hand.Draw(s.Draw())
@@ -96,7 +104,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card) {
 
 func (p *Player) PlaySplit(w *cards.Wager, s *cards.Shoe, up *cards.Card) {
 	haveCards := getHave(&w.Hand)
-	if p.Parameters.TableRules.DoubleAfterSplit && p.GetDouble(haveCards, up.Offset) {
+	if p.Parameters.Rules.DoubleAfterSplit && p.GetDouble(haveCards, up.Offset) {
 		w.Double()
 		w.Hand.Draw(s.Draw())
 		return
@@ -104,7 +112,7 @@ func (p *Player) PlaySplit(w *cards.Wager, s *cards.Shoe, up *cards.Card) {
 
 	if w.Hand.Pair() && p.SplitCount < constants.MaxSplitHands {
 		if p.GetSplit(w.Hand.Cards[0].Value, up.Offset) {
-			if !w.Hand.PairOfAces() || (w.Hand.PairOfAces() && p.Parameters.TableRules.ResplitAces) {
+			if !w.Hand.PairOfAces() || (w.Hand.PairOfAces() && p.Parameters.Rules.ResplitAces) {
 				split := &p.Splits[p.SplitCount]
 				p.SplitCount++
 				w.SplitWager(split)
@@ -117,7 +125,7 @@ func (p *Player) PlaySplit(w *cards.Wager, s *cards.Shoe, up *cards.Card) {
 		}
 	}
 
-	if w.Hand.Cards[0].BlackjackAce() && !p.Parameters.TableRules.HitSplitAces {
+	if w.Hand.Cards[0].BlackjackAce() && !p.Parameters.Rules.HitSplitAces {
 		return
 	}
 
@@ -181,7 +189,7 @@ func (p *Player) payoffHand(w *cards.Wager, dealerBlackjack bool, dealerBusted b
 				w.Lost()
 			}
 		} else if w.Hand.Blackjack() {
-			w.WonBlackjack(p.BlackjackPays, p.BlackjackBets)
+			w.WonBlackjack(int64(p.Parameters.Rules.BlackjackPays), int64(p.Parameters.Rules.BlackjackBets))
 		} else if w.Hand.Busted() {
 			w.Lost()
 		} else if dealerBusted || (w.Hand.Total() > dealerTotal) {
@@ -217,4 +225,11 @@ func getHave(hand *cards.Hand) *[13]int {
 		haveCards[card.Offset]++
 	}
 	return haveCards
+}
+
+func (p *Player) MimicStand() bool {
+	if p.Wager.Hand.Soft17() {
+		return false
+	}
+	return p.Wager.Hand.Total() >= 17
 }
