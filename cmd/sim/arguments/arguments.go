@@ -83,8 +83,8 @@ func (args *Arguments) PrintVersion() {
 func (args *Arguments) PrintHelpMessage() {
 	fmt.Println(`Usage: strikerGO [options]
 Options:
-  -h, --help                               Show this help message
-  -v, --version                            Display the program version
+  --help                                   Show this help message
+  --version                                Display the program version
   -h, --number-of-hands <number of hands>  The number of hands to play in this simulation
   -M, --mimic                              Use the mimic dealer player strategy
   -B, --basic                              Use the basic player strategy
