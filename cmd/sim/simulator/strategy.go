@@ -10,6 +10,16 @@ import (
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
+const (
+	BET = "bet"
+	INSURANCE = "insurance"
+	SURRENDER = "surrender"
+	DOUBLE = "double"
+	SPLIT = "split"
+	STAND = "stand"
+	PLAY = "play"
+)
+
 var aux struct {
 	Bet       int  `json:"bet"`
 	Insurance bool `json:"insurance"`
@@ -20,7 +30,7 @@ var aux struct {
 }
 
 func (p *Player) GetBet() int {
-	response, err := http.Get(buildUrl("bet", p.SeenCards, nil, 0, p.Parameters.Playbook, p.NumberOfCards, 0))
+	response, err := http.Get(buildUrl(BET, p.SeenCards, nil, 0, p.Parameters.Playbook, p.NumberOfCards, 0))
 	if err != nil || response.StatusCode != 200 {
 		panic(err)
 	}
@@ -38,33 +48,33 @@ func (p *Player) GetBet() int {
 }
 
 func (p *Player) GetInsurance() bool {
-	p.GetHTTP(buildUrl("insurance", p.SeenCards, nil, 0, p.Parameters.Playbook, p.NumberOfCards, 0))
+	p.GetHTTP(buildUrl(INSURANCE, p.SeenCards, nil, 0, p.Parameters.Playbook, p.NumberOfCards, 0))
 	return aux.Insurance
 }
 
 func (p *Player) GetSurrender(have *[13]int, up int) bool {
-	p.GetHTTP(buildUrl("surrender", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
+	p.GetHTTP(buildUrl(SURRENDER, p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Surrender
 }
 
 func (p *Player) GetDouble(have *[13]int, up int) bool {
-	p.GetHTTP(buildUrl("double", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
+	p.GetHTTP(buildUrl(DOUBLE, p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Double
 }
 
 func (p *Player) GetSplit(pair, up int) bool {
-	p.GetHTTP(buildUrl("split", p.SeenCards, nil, pair, p.Parameters.Playbook, p.NumberOfCards, up))
+	p.GetHTTP(buildUrl(SPLIT, p.SeenCards, nil, pair, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Split
 }
 
 func (p *Player) GetStand(have *[13]int, up int) bool {
-	p.GetHTTP(buildUrl("stand", p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
+	p.GetHTTP(buildUrl(STAND, p.SeenCards, have, 0, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Stand
 }
 
 //
 func (p *Player) GetPlay(have *[13]int, pair, up int) bool {
-	p.GetHTTP(buildUrl("play", p.SeenCards, have, pair, p.Parameters.Playbook, p.NumberOfCards, up))
+	p.GetHTTP(buildUrl(PLAY, p.SeenCards, have, pair, p.Parameters.Playbook, p.NumberOfCards, up))
 	return aux.Stand
 }
 
@@ -116,14 +126,3 @@ func buildUrl(baseUrl string, seenData *[13]int, haveData *[13]int, pair int, pl
 	return fullUrl.String()
 }
 
-/*
-func ClampInt(value, min, max int) int {
-	if value < min {
-		return min
-	}
-	if value > max {
-		return max
-	}
-	return value
-}
-*/
