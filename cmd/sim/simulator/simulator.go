@@ -37,11 +37,11 @@ type SimulationDatabaseTable struct {
 	Simulations string `json:"simulations"`
 	Rounds      string `json:"rounds"`
 	Hands       string `json:"hands"`
-	TotalBet    string `json:"bet"`
-	TotalWon    string `json:"won"`
+	TotalBet    string `json:"total_bet"`
+	TotalWon    string `json:"total_won"`
 	Advantage   string `json:"advantage"`
-	TotalTime   string `json:"time"`
-	AverageTime string `json:"average"`
+	TotalTime   string `json:"total_time"`
+	AverageTime string `json:"average_time"`
 	Parameters  string `json:"parameters"`
 	Payload     string `json:"payload"`
 }
@@ -88,6 +88,7 @@ func (s *Simulation) SimulatorProcess() error {
 	tbs.TotalTime = fmt.Sprintf("%d", int64(s.Report.Duration.Seconds()))
 	tbs.AverageTime = fmt.Sprintf("%06.2f seconds", s.Report.Duration.Seconds()*float64(1000000)/float64(s.Report.TotalHands))
 	tbs.Advantage = fmt.Sprintf("%+04.3f %%", (float64(s.Report.TotalWon) / float64(s.Report.TotalBet) * float64(100)))
+	tbs.Payload = "n/a"
 
 	fmt.Printf("\n")
     s.Parameters.Logger.Simulation("  -- results ---------------------------------------------------------------------\n");
@@ -150,44 +151,7 @@ func (s *Simulation) RunSimulation() {
 	}
 }
 
-
-
-/*
-func process(id int, wg *sync.WaitGroup, status chan string) {
-	defer wg.Done() // Notify the WaitGroup when done
-
-	for i := 1; i <= 10; i++ {
-		time.Sleep(time.Millisecond * 500) // Simulate work
-		// Send status update to the channel
-		status <- fmt.Sprintf("Process %d is at step %d\n", id, i)
-	}
-}
-
-func main() {
-	var wg sync.WaitGroup   // WaitGroup to wait for all goroutines to complete
-	status := make(chan string) // Channel to pass status updates
-
-	// Start two concurrent processes
-	wg.Add(2) // We have two goroutines to wait for
-	go process(1, &wg, status) // Start process 1
-	go process(2, &wg, status) // Start process 2
-
-	// Goroutine to close the status channel after all processes finish
-	go func() {
-		wg.Wait() // Wait for all goroutines to complete
-		close(status) // Close the status channel when done
-	}()
-
-	// Continuously receive and print status updates from the channel
-	for update := range status {
-		fmt.Print(update)
-	}
-
-	fmt.Println("All processes completed.")
-}
-*/
-
-
+//
 func InsertSimulationTable(s *SimulationDatabaseTable, playbook string) error {
 	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationUrl, s.Simulator, playbook, s.Guid)
 	//log.Printf("Insert Simulation: %s\n", url)
