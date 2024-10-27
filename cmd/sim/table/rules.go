@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/wade-rees-me/striker-go/cmd/sim/logger"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
@@ -24,22 +23,15 @@ type Rules struct {
 	Penetration         float64 `json:"penetration"`
 }
 
-// Logger struct placeholder (assuming you have a Logger defined elsewhere)
-type Logger struct{}
+func NewRules(decks string) *Rules {
+	rules := &Rules{}
 
-// Mock function for logger.Simulation (for the sake of completeness)
-func (l *Logger) Simulation(message string) {
-	fmt.Print(message)
-}
-
-// Function to load rules table by calling fetchRulesTable
-func (r *Rules) LoadTable(decks string) error {
 	url := "http://" + constants.RulesUrl + "/" + decks
-	if err := r.fetchTable(url); err != nil {
+	if err := rules.fetchTable(url); err != nil {
 		log.Printf("Error fetching rules table: %v\n", err)
-		return err
+		panic(err)
 	}
-	return nil
+	return rules
 }
 
 // Function to fetch rules table using HTTP GET
@@ -76,17 +68,17 @@ func (r *Rules) fetchTable(url string) error {
 }
 
 //
-func (r *Rules) Print(logger *logger.Logger) {
-	logger.Simulation(fmt.Sprintf("    %-24s\n", "Table Rules"))
-	logger.Simulation(fmt.Sprintf("      %-24s: %s\n", "Table", r.Playbook))
-	logger.Simulation(fmt.Sprintf("      %-24s: %t\n", "Hit soft 17", r.HitSoft17))
-	logger.Simulation(fmt.Sprintf("      %-24s: %t\n", "Surrender", r.Surrender))
-	logger.Simulation(fmt.Sprintf("      %-24s: %t\n", "Double any two cards", r.DoubleAnyTwoCards))
-	logger.Simulation(fmt.Sprintf("      %-24s: %t\n", "Double after split", r.DoubleAfterSplit))
-	logger.Simulation(fmt.Sprintf("      %-24s: %t\n", "Resplit aces", r.ResplitAces))
-	logger.Simulation(fmt.Sprintf("      %-24s: %t\n", "Hit split aces", r.HitSplitAces))
-	logger.Simulation(fmt.Sprintf("      %-24s: %d\n", "Blackjack bets", r.BlackjackBets))
-	logger.Simulation(fmt.Sprintf("      %-24s: %d\n", "Blackjack pays", r.BlackjackPays))
-	logger.Simulation(fmt.Sprintf("      %-24s: %0.3f %%\n", "Penetration", r.Penetration))
+func (r *Rules) Print() {
+	fmt.Printf("    %-24s\n", "Table Rules")
+	fmt.Printf("      %-24s: %s\n", "Table", r.Playbook)
+	fmt.Printf("      %-24s: %t\n", "Hit soft 17", r.HitSoft17)
+	fmt.Printf("      %-24s: %t\n", "Surrender", r.Surrender)
+	fmt.Printf("      %-24s: %t\n", "Double any two cards", r.DoubleAnyTwoCards)
+	fmt.Printf("      %-24s: %t\n", "Double after split", r.DoubleAfterSplit)
+	fmt.Printf("      %-24s: %t\n", "Resplit aces", r.ResplitAces)
+	fmt.Printf("      %-24s: %t\n", "Hit split aces", r.HitSplitAces)
+	fmt.Printf("      %-24s: %d\n", "Blackjack bets", r.BlackjackBets)
+	fmt.Printf("      %-24s: %d\n", "Blackjack pays", r.BlackjackPays)
+	fmt.Printf("      %-24s: %0.3f %%\n", "Penetration", r.Penetration)
 }
 

@@ -4,7 +4,6 @@ type Hand struct {
 	Cards     []Card // Cards in the hand
 	HandTotal int    // Total value of the hand
 	SoftAce   int    // Number of aces valued as 11
-	Surrender bool
 }
 
 func NewHand() *Hand {
@@ -15,7 +14,6 @@ func (h *Hand) Reset() {
 	h.Cards = h.Cards[:0]
 	h.HandTotal = 0
 	h.SoftAce = 0
-	h.Surrender = false
 }
 
 func (h *Hand) Draw(c *Card) *Card {

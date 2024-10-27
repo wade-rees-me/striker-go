@@ -23,13 +23,10 @@ type Arguments struct {
 }
 
 func NewArguments() *Arguments {
-	return &Arguments{
+	arguments := &Arguments{
 		NumberOfHands: constants.DefaultNumberOfHands,
 	}
-}
 
-// Parse command-line arguments
-func (args *Arguments) ParseArguments() {
 	argv := os.Args[1:]  // Skip the first element (program name)
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
@@ -41,39 +38,40 @@ func (args *Arguments) ParseArguments() {
 					fmt.Fprintf(os.Stderr, "Number of hands must be between %d and %d\n", constants.MinimumNumberOfHands, constants.MaximumNumberOfHands)
 					os.Exit(1)
 				}
-				args.NumberOfHands = hands
+				arguments.NumberOfHands = hands
 			}
 		case "-M", "--mimic":
-			args.MimicFlag = true
+			arguments.MimicFlag = true
 		case "-B", "--basic":
-			args.BasicFlag = true
+			arguments.BasicFlag = true
 		case "-L", "--linear":
-			args.LinearFlag = true
+			arguments.LinearFlag = true
 		case "-P", "--polynomial":
-			args.PolynomialFlag = true
+			arguments.PolynomialFlag = true
 		case "-H", "--high-low":
-			args.HighLowFlag = true
+			arguments.HighLowFlag = true
 		case "-W", "--wong":
-			args.WongFlag = true
+			arguments.WongFlag = true
 		case "-S", "--striker":
-			args.StrikerFlag = true
+			arguments.StrikerFlag = true
 		case "-1", "--single-deck":
-			args.SingleDeckFlag = true
+			arguments.SingleDeckFlag = true
 		case "-2", "--double-deck":
-			args.DoubleDeckFlag = true
+			arguments.DoubleDeckFlag = true
 		case "-6", "--six-shoe":
-			args.SixShoeFlag = true
+			arguments.SixShoeFlag = true
 		case "--help":
-			args.PrintHelpMessage()
+			arguments.PrintHelpMessage()
 			os.Exit(0)
 		case "--version":
-			args.PrintVersion()
+			arguments.PrintVersion()
 			os.Exit(0)
 		default:
 			fmt.Fprintf(os.Stderr, "Error: Invalid argument: %s\n", argv[i])
 			os.Exit(2)
 		}
 	}
+	return arguments
 }
 
 func (args *Arguments) PrintVersion() {

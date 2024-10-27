@@ -7,8 +7,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 
-	"github.com/wade-rees-me/striker-go/cmd/sim/logger"
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
 )
 
@@ -24,12 +24,12 @@ type Table struct {
 	Report     arguments.Report
 }
 
-func NewTable(index int64, parameters *arguments.Parameters) *Table {
+func NewTable(index int64, parameters *arguments.Parameters, rules *table.Rules) *Table {
 	t := new(Table)
 	t.Index = index
 	t.Parameters = parameters
-	t.Dealer = cards.NewDealer(parameters.Rules.HitSoft17)
-	t.Shoe = *cards.NewShoe(cards.DeckOfPokerCards, parameters.NumberOfDecks, parameters.Rules.Penetration)
+	t.Dealer = cards.NewDealer(rules.HitSoft17)
+	t.Shoe = *cards.NewShoe(cards.DeckOfPokerCards, parameters.NumberOfDecks, rules.Penetration)
 	return t
 }
 
@@ -37,14 +37,14 @@ func (t *Table) AddPlayer(player *Player) {
 	t.Player = player
 }
 
-func (t *Table) Session(wg *sync.WaitGroup, mimic bool, status chan string) {
+func (t *Table) Session(wg *sync.WaitGroup, mimic bool) {
 	defer wg.Done()
 
-	t.Parameters.Logger.Simulation(fmt.Sprintf("    Start: %s table session\n", t.Parameters.Strategy));
-	t.Parameters.Logger.Simulation(fmt.Sprintf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands)))
+	fmt.Sprintf("    Start: %s table session\n", t.Parameters.Strategy);
+	fmt.Sprintf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
 	t.Report.Start = time.Now()
 	for t.Report.TotalHands < t.Parameters.NumberOfHands {
-        t.Status(t.Report.TotalRounds, t.Report.TotalHands, t.Parameters.Logger, status)
+        t.Status(t.Report.TotalRounds, t.Report.TotalHands)
 		t.Report.TotalRounds++
 		t.Shoe.Shuffle()
 		t.Player.Shuffle()
@@ -72,8 +72,8 @@ func (t *Table) Session(wg *sync.WaitGroup, mimic bool, status chan string) {
 
 	t.Report.End = time.Now()
 	t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
-	t.Parameters.Logger.Simulation(fmt.Sprintf("\n      End: table\n"))
-	t.Parameters.Logger.Simulation(fmt.Sprintf("    End: table session\n"));
+	fmt.Sprintf("\n      End: table\n")
+	fmt.Sprintf("    End: table session\n");
 }
 
 func (t *Table) dealCards() *cards.Card {
@@ -93,21 +93,15 @@ func (t *Table) show(up *cards.Card) {
 	}
 }
 
-func (t *Table) Status(round int64, hand int64, logger *logger.Logger, status chan string) {
+func (t *Table) Status(round int64, hand int64) {
 	if round == 0 {
-		//logger.Simulation("        ")
-		status <- fmt.Sprintf("        ")
+		fmt.Printf("        ")
 	}
 	if (round+1)%STATUS_DOT == 0 {
-		//logger.Simulation(".")
-		status <- fmt.Sprintf(".")
+		fmt.Printf(".")
 	}
 	if (round+1)%STATUS_LINE == 0 {
-		// Format the round and hand count with commas
-		buffer := fmt.Sprintf(" : %s (rounds), %s (hands)\n", humanize.Comma(round+1), humanize.Comma(hand))
-		//logger.Simulation(buffer)
-		status <- fmt.Sprintf(buffer)
-		//logger.Simulation("        ")
-		status <- fmt.Sprintf("        ")
+		fmt.Printf(" : %s (rounds), %s (hands)\n", humanize.Comma(round+1), humanize.Comma(hand))
+		fmt.Printf("        ")
 	}
 }

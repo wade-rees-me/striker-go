@@ -14,10 +14,11 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
-type Simulation struct {
+type Simulator struct {
 	Name       string
 	Simulator  string
 	Playbook   string
@@ -29,25 +30,8 @@ type Simulation struct {
 	TableList  []Table
 }
 
-type SimulationDatabaseTable struct {
-	Playbook    string `json:"playbook"`
-	Guid        string `json:"guid"`
-	Simulator   string `json:"simulator"`
-	Summary     string `json:"summary"`
-	Simulations string `json:"simulations"`
-	Rounds      string `json:"rounds"`
-	Hands       string `json:"hands"`
-	TotalBet    string `json:"total_bet"`
-	TotalWon    string `json:"total_won"`
-	Advantage   string `json:"advantage"`
-	TotalTime   string `json:"total_time"`
-	AverageTime string `json:"average_time"`
-	Parameters  string `json:"parameters"`
-	Payload     string `json:"payload"`
-}
-
-func NewSimulation(parameters *arguments.Parameters) *Simulation {
-	s := new(Simulation)
+func NewSimulator(parameters *arguments.Parameters, rules *table.Rules, strategy *table.Strategy) *Simulator {
+	s := new(Simulator)
 	t := time.Now()
 	s.Year = t.Year()
 	s.Month = int(t.Month())
@@ -55,21 +39,21 @@ func NewSimulation(parameters *arguments.Parameters) *Simulation {
 	s.Name = fmt.Sprintf("striker-go--%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
 	s.Parameters = parameters
 
-		table := NewTable(1, parameters)
-		player := NewPlayer(parameters, table.Shoe.NumberOfCards)
-		table.AddPlayer(player)
-		s.TableList = append(s.TableList, *table)
+	table := NewTable(1, parameters, rules)
+	player := NewPlayer(rules, strategy, table.Shoe.NumberOfCards)
+	table.AddPlayer(player)
+	s.TableList = append(s.TableList, *table)
 
 	return s
 }
 
 //
-func (s *Simulation) SimulatorProcess() error {
-	s.Parameters.Logger.Simulation(fmt.Sprintf("\n  Start: simulation %s\n", s.Name))
+func (s *Simulator) SimulatorProcess() error {
+	fmt.Printf("\n  Start: simulation %s\n", s.Name)
 	s.RunSimulation()
-	s.Parameters.Logger.Simulation(fmt.Sprintf("  End: simulation\n"))
+	fmt.Printf("  End: simulation\n")
 
-	tbs := new(SimulationDatabaseTable)
+	tbs := new(Simulation)
 
 	jsonData, err := json.Marshal(s.Parameters)
 	if err == nil {
@@ -88,56 +72,41 @@ func (s *Simulation) SimulatorProcess() error {
 	tbs.TotalTime = fmt.Sprintf("%d", int64(s.Report.Duration.Seconds()))
 	tbs.AverageTime = fmt.Sprintf("%06.2f seconds", s.Report.Duration.Seconds()*float64(1000000)/float64(s.Report.TotalHands))
 	tbs.Advantage = fmt.Sprintf("%+04.3f %%", (float64(s.Report.TotalWon) / float64(s.Report.TotalBet) * float64(100)))
+	tbs.Parameters = "n/a"
+	tbs.Rules = "n/a"
 	tbs.Payload = "n/a"
 
 	fmt.Printf("\n")
-    s.Parameters.Logger.Simulation("  -- results ---------------------------------------------------------------------\n");
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s\n", "Number of hands", humanize.Comma(s.Report.TotalHands)))
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s\n", "Number of rounds",  humanize.Comma(s.Report.TotalRounds)))
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s, %+04.3f average bet per hand\n", "Total bet", humanize.Comma(s.Report.TotalBet), (float64(s.Report.TotalBet) / float64(s.Report.TotalHands))))
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s, %+04.3f average win per hand\n", "Total won", humanize.Comma(s.Report.TotalWon), (float64(s.Report.TotalWon) / float64(s.Report.TotalHands))))
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s seconds\n", "Total time", humanize.Comma(int64(s.Report.Duration.Seconds()))))
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.AverageTime))
-	s.Parameters.Logger.Simulation(fmt.Sprintf("    %-24s: %s\n", "Player advantage", tbs.Advantage)) /* House Edge (%)=(Total Loss/Total Bet)×100 */
-    s.Parameters.Logger.Simulation("  --------------------------------------------------------------------------------\n\n");
+    fmt.Printf("  -- results ---------------------------------------------------------------------\n");
+	fmt.Printf("    %-24s: %s\n", "Number of hands", humanize.Comma(s.Report.TotalHands))
+	fmt.Printf("    %-24s: %s\n", "Number of rounds",  humanize.Comma(s.Report.TotalRounds))
+	fmt.Printf("    %-24s: %s, %+04.3f average bet per hand\n", "Total bet", humanize.Comma(s.Report.TotalBet), (float64(s.Report.TotalBet) / float64(s.Report.TotalHands)))
+	fmt.Printf("    %-24s: %s, %+04.3f average win per hand\n", "Total won", humanize.Comma(s.Report.TotalWon), (float64(s.Report.TotalWon) / float64(s.Report.TotalHands)))
+	fmt.Printf("    %-24s: %s seconds\n", "Total time", humanize.Comma(int64(s.Report.Duration.Seconds())))
+	fmt.Printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.AverageTime)
+	fmt.Printf("    %-24s: %s\n", "Player advantage", tbs.Advantage) /* House Edge (%)=(Total Loss/Total Bet)×100 */
+    fmt.Printf("  --------------------------------------------------------------------------------\n\n");
 	fmt.Printf("\n")
 
-    s.Parameters.Logger.Simulation("  -- insert ----------------------------------------------------------------------\n");
+    fmt.Printf("  -- insert ----------------------------------------------------------------------\n");
 	if err := InsertSimulationTable(tbs, tbs.Playbook); err != nil {
 		log.Printf("Failed to insert into Simulation table: %s", err)
 		return err
 	}
-    s.Parameters.Logger.Simulation("  --------------------------------------------------------------------------------\n");
+    fmt.Printf("  --------------------------------------------------------------------------------\n");
 
 	return nil
 }
 
-func (s *Simulation) RunSimulation() {
+func (s *Simulator) RunSimulation() {
 	var wg sync.WaitGroup
-	status := make(chan string) // Channel to pass status updates
 
 	wg.Add(len(s.TableList))
 	for i := range s.TableList {
 		t := &s.TableList[i]
-		//s.Parameters.Logger.Simulation(fmt.Sprintf("    Start: %s table session\n", s.Parameters.Strategy));
-		go t.Session(&wg, "mimic" == s.Parameters.Strategy, status)
-		//s.Parameters.Logger.Simulation(fmt.Sprintf("    End: table session\n"));
+		go t.Session(&wg, "mimic" == s.Parameters.Strategy)
 	}
-	//wg.Wait()
-
-	// Goroutine to close the status channel after all processes finish
-	go func() {
-		wg.Wait() // Wait for all goroutines to complete
-		close(status) // Close the status channel when done
-	}()
-
-	// Continuously receive and print status updates from the channel
-	for update := range status {
-		fmt.Print(update)
-	}
-/*
-	fmt.Println("All processes completed.")
-*/
+	wg.Wait()
 
 	// Merge tables into one report
 	for i := range s.TableList {
@@ -152,7 +121,7 @@ func (s *Simulation) RunSimulation() {
 }
 
 //
-func InsertSimulationTable(s *SimulationDatabaseTable, playbook string) error {
+func InsertSimulationTable(s *Simulation, playbook string) error {
 	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationUrl, s.Simulator, playbook, s.Guid)
 	//log.Printf("Insert Simulation: %s\n", url)
 
