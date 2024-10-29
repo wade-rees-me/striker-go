@@ -14,21 +14,6 @@ import (
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
-/*
-type Strategy struct {
-	Playbook     string
-	Counts       []int
-	Bets         []int
-	Insurance    string
-	SoftDouble   map[string][]string
-	HardDouble   map[string][]string
-	PairSplit    map[string][]string
-	SoftStand    map[string][]string
-	HardStand    map[string][]string
-	NumberOfCards int
-	JsonResponse []map[string]interface{}
-}
-*/
 type Strategy struct {
     Playbook       string                       `json:"playbook"`
     Counts         []int                        `json:"counts"`
@@ -39,10 +24,9 @@ type Strategy struct {
     PairSplit      map[string][]string          `json:"pair-split"`
     SoftStand      map[string][]string          `json:"soft-stand"`
     HardStand      map[string][]string          `json:"hard-stand"`
-    SoftSurrender  map[string][]string          `json:"soft-surrender"`
-    HardSurrender  map[string][]string          `json:"hard-surrender"`
 	NumberOfCards int
 	JsonResponse []map[string]interface{}
+	JsonPayload []map[string]interface{}
 }
 
 func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
@@ -77,7 +61,6 @@ func (s *Strategy) fetchJson(url string) error {
 		return err
 	}
 	err = json.Unmarshal(body, &s.JsonResponse)
-	fmt.Printf("err: %v\n", err)
 	return err
 }
 
@@ -89,45 +72,36 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
 				return err
 			}
 
-fmt.Printf("%s\n", payload)
+			payString := string(payload)
+			newPay := payString[1 : len(payString)-1]
+			jsonStr := strings.ReplaceAll(newPay, "\\", "")
+//fmt.Printf("jsonStr:::: %v\n", jsonStr)
 
-var strategy Strategy
-//err = json.Unmarshal([]byte(payload), s)
-//err = json.Unmarshal([]byte(payload), &strategy)
-//err = json.Unmarshal(payload, &strategy)
-if err := json.Unmarshal([]byte(payload), &strategy); err != nil {
-	log.Fatal(err)
-}
-fmt.Printf("%v\n", strategy)
-
-
-/*
-			//var jsonPayload map[string]interface{}
-			//err = json.Unmarshal(payload, &jsonPayload)
-			err = json.Unmarshal(payload, s)
-			if err != nil {
-				return fmt.Errorf("Error parsing strategy table payload")
+			var result map[string]interface{}
+			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
+				fmt.Println("Error parsing JSON:", err)
+				log.Fatalf("Error parsing JSON string: %v", err)
 			}
-*/
+//fmt.Printf("result:::: %v\n", result)
 
-/*
-			s.Playbook = jsonPayload["playbook"].(string)
-			s.Counts = parseIntSlice(jsonPayload["counts"].([]interface{}))
-			s.Bets = parseIntSlice(jsonPayload["bets"].([]interface{}))
-			s.Insurance = jsonPayload["insurance"].(string)
-			s.SoftDouble = parseStringMap(jsonPayload["soft-double"].(map[string]interface{}))
-			s.HardDouble = parseStringMap(jsonPayload["hard-double"].(map[string]interface{}))
-			s.PairSplit = parseStringMap(jsonPayload["pair-split"].(map[string]interface{}))
-			s.SoftStand = parseStringMap(jsonPayload["soft-stand"].(map[string]interface{}))
-			s.HardStand = parseStringMap(jsonPayload["hard-stand"].(map[string]interface{}))
-*/
+            s.Playbook = result["playbook"].(string)
+            s.Counts = parseIntSlice(result["counts"].([]interface{}))
+            s.Bets = parseIntSlice(result["bets"].([]interface{}))
+            s.Insurance = result["insurance"].(string)
+            s.SoftDouble = parseStringMap(result["soft-double"].(map[string]interface{}))
+            s.HardDouble = parseStringMap(result["hard-double"].(map[string]interface{}))
+            s.PairSplit = parseStringMap(result["pair-split"].(map[string]interface{}))
+            s.SoftStand = parseStringMap(result["soft-stand"].(map[string]interface{}))
+            s.HardStand = parseStringMap(result["hard-stand"].(map[string]interface{}))
+//fmt.Printf("strategy:::: %v\n", s)
+
 			return nil
 		}
 	}
 	return fmt.Errorf("No matching strategy found")
 }
 
-func (s *Strategy) GetBet(seenCards []int) int {
+func (s *Strategy) GetBet(seenCards *[13]int) int {
 	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
 	bet := clamp(trueCount*2, constants.MinimumBet, constants.MaximumBet)
 	if bet%2 != 0 {
@@ -137,19 +111,32 @@ func (s *Strategy) GetBet(seenCards []int) int {
 }
 
 func (s *Strategy) GetInsurance(seenCards *[13]int) bool {
-	return false
-}
-func (s *Strategy) GetDouble(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
-	return false
-}
-func (s *Strategy) GetSplit(seenCards *[13]int, pair, up *cards.Card) bool {
-	return false
-}
-func (s *Strategy) GetStand(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
-	return true
+    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+    return s.processValue(s.Insurance, trueCount, false)
 }
 
-func (s *Strategy) getRunningCount(seenCards []int) int {
+func (s *Strategy) GetDouble(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
+//fmt.Printf("getDouble\n")
+    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+    if (soft) {
+        return s.processValue(s.SoftDouble[strconv.Itoa(total)][up.Offset], trueCount, false)
+    }
+    return s.processValue(s.HardDouble[strconv.Itoa(total)][up.Offset], trueCount, false)
+}
+
+func (s *Strategy) GetSplit(seenCards *[13]int, pair, up *cards.Card) bool {
+    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+    return s.processValue(s.PairSplit[strconv.Itoa(pair.Value)][up.Offset], trueCount, false)
+}
+func (s *Strategy) GetStand(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
+    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+    if (soft) {
+        return s.processValue(s.SoftStand[strconv.Itoa(total)][up.Offset], trueCount, false)
+    }
+    return s.processValue(s.HardStand[strconv.Itoa(total)][up.Offset], trueCount, false)
+}
+
+func (s *Strategy) getRunningCount(seenCards *[13]int) int {
 	running := 0
 	for i, count := range s.Counts {
 		running += count * seenCards[i]
@@ -157,7 +144,7 @@ func (s *Strategy) getRunningCount(seenCards []int) int {
 	return running
 }
 
-func (s *Strategy) getTrueCount(seenCards []int, runningCount int) int {
+func (s *Strategy) getTrueCount(seenCards *[13]int, runningCount int) int {
 	unseen := s.NumberOfCards
 	for _, card := range seenCards[2:12] {
 		unseen -= card
@@ -220,16 +207,4 @@ func parseStringSlice(data []interface{}) []string {
 	}
 	return result
 }
-
-/*
-func main() {
-	// Example usage
-	decks := "some_decks"
-	strategy := "some_strategy"
-	numberOfCards := 52
-	strat := NewStrategy(decks, strategy, numberOfCards)
-	fmt.Println("Playbook:", strat.Playbook)
-}
-
-*/
 

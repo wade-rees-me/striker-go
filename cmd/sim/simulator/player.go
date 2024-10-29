@@ -41,7 +41,7 @@ func (p *Player) PlaceBet(mimic bool) {
 	if(mimic) {
 		p.Wager.Bet(int64(constants.MinimumBet))
 	} else {
-		//p.Wager.Bet(int64(p.Strategy.GetBet(p.SeenCards)))
+		p.Wager.Bet(int64(p.Strategy.GetBet(p.SeenCards)))
 	}
 }
 
@@ -63,9 +63,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
         return;
 	}
 
-	//haveCards := getHave(&p.Wager.Hand)
-	doDouble := p.Strategy.GetDouble(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up)
-	if doDouble {
+	if p.Strategy.GetDouble(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up) {
 		p.Wager.Double()
 		p.Wager.Hand.Draw(s.Draw())
 		return
@@ -74,13 +72,12 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 	if p.Wager.Hand.Pair() && p.Strategy.GetSplit(p.SeenCards, &p.Wager.Hand.Cards[0], up) {
 		split := &p.Splits[p.SplitCount]
 		p.SplitCount++
+		p.Wager.SplitWager(split)
 		if p.Wager.Hand.PairOfAces() {
-			p.Wager.SplitWager(split)
 			p.Wager.Hand.Draw(s.Draw())
 			split.Hand.Draw(s.Draw())
 			return
 		}
-		p.Wager.SplitWager(split)
 		p.Wager.Hand.Draw(s.Draw())
 		p.PlaySplit(&p.Wager, s, up)
 		split.Hand.Draw(s.Draw())
@@ -97,26 +94,25 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 	}
 }
 
-func (p *Player) PlaySplit(w *cards.Wager, s *cards.Shoe, up *cards.Card) {
-	//haveCards := getHave(&w.Hand)
+func (p *Player) PlaySplit(w *cards.Wager, shoe *cards.Shoe, up *cards.Card) {
 	if w.Hand.Pair() && p.SplitCount < constants.MaxSplitHands {
 		if p.Strategy.GetSplit(p.SeenCards, &w.Hand.Cards[0], up) {
 			split := &p.Splits[p.SplitCount]
 			p.SplitCount++
 			w.SplitWager(split)
-			w.Hand.Draw(s.Draw())
-			p.PlaySplit(w, s, up)
-			split.Hand.Draw(s.Draw())
-			p.PlaySplit(split, s, up)
+			w.Hand.Draw(shoe.Draw())
+			p.PlaySplit(w, shoe, up)
+			split.Hand.Draw(shoe.Draw())
+			p.PlaySplit(split, shoe, up)
 			return
 		}
 	}
 
-	doStand := p.Strategy.GetStand(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up)
+	doStand := p.Strategy.GetStand(p.SeenCards, w.Hand.Total(), w.Hand.Soft(), up)
 	for !w.Hand.Busted() && !doStand {
-		w.Hand.Draw(s.Draw())
-		for !w.Hand.Busted() {
-			doStand = p.Strategy.GetStand(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up)
+		w.Hand.Draw(shoe.Draw())
+		if !w.Hand.Busted() {
+			doStand = p.Strategy.GetStand(p.SeenCards, w.Hand.Total(), w.Hand.Soft(), up)
 		}
 	}
 }
@@ -199,16 +195,6 @@ func (p *Player) payoffSplit(w *cards.Wager, dealerBusted bool, dealerTotal int)
 	p.Report.TotalBet += w.AmountBet
 	// fmt.Printf("  Payoff.Splits(%d, %d) [%v] %v:%d\n", w.AmountBet, w.AmountWon, w.Hand.Cards, dealerBusted, dealerTotal)
 }
-
-/*
-func getHave(hand *cards.Hand) *[13]int {
-	haveCards := new([13]int)
-	for _, card := range hand.Cards {
-		haveCards[card.Offset]++
-	}
-	return haveCards
-}
-*/
 
 func (p *Player) MimicStand() bool {
 	if p.Wager.Hand.Soft17() {

@@ -12,10 +12,10 @@ const (
 
 // Simulation constants
 const (
-	MaximumNumberOfHands	= int64(1000000000)
-	MinimumNumberOfHands	= int64(10000)
-	DefaultNumberOfHands	= int64(1000000)
-	DatabaseNumberOfHands	= int64(1000000)
+	MaximumNumberOfHands	= int64(25000000000)
+	MinimumNumberOfHands	= int64(100)
+	DefaultNumberOfHands	= int64(250000000)
+	DatabaseNumberOfHands	= int64(250000000)
 	MaxSplitHands			= 18
 	StrikerWhoAmI			= "striker-go"
 

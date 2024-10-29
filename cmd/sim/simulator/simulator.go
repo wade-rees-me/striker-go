@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sync"
+	//"sync"
 	"time"
 
 	//"github.com/google/uuid"
@@ -88,36 +88,36 @@ func (s *Simulator) SimulatorProcess() error {
     fmt.Printf("  --------------------------------------------------------------------------------\n\n");
 	fmt.Printf("\n")
 
-    fmt.Printf("  -- insert ----------------------------------------------------------------------\n");
-	if err := InsertSimulationTable(tbs, tbs.Playbook); err != nil {
-		log.Printf("Failed to insert into Simulation table: %s", err)
-		return err
-	}
-    fmt.Printf("  --------------------------------------------------------------------------------\n");
+	if(s.Report.TotalHands >= constants.DatabaseNumberOfHands) {
+    	fmt.Printf("  -- insert ----------------------------------------------------------------------\n");
+		if err := InsertSimulationTable(tbs, tbs.Playbook); err != nil {
+			log.Printf("Failed to insert into Simulation table: %s", err)
+			return err
+		}
+    	fmt.Printf("  --------------------------------------------------------------------------------\n");
+    }
 
 	return nil
 }
 
 func (s *Simulator) RunSimulation() {
-	var wg sync.WaitGroup
-
-	wg.Add(len(s.TableList))
-	for i := range s.TableList {
-		t := &s.TableList[i]
-		go t.Session(&wg, "mimic" == s.Parameters.Strategy)
-	}
-	wg.Wait()
+	//for i := range s.TableList {
+		//t := &s.TableList[i]
+		//t.Session("mimic" == s.Parameters.Strategy)
+	//}
+t := &s.TableList[0]
+t.Session("mimic" == s.Parameters.Strategy)
 
 	// Merge tables into one report
-	for i := range s.TableList {
-		t := &s.TableList[i]
+	//for i := range s.TableList {
+		t = &s.TableList[0]
 
 		s.Report.TotalRounds += t.Report.TotalRounds
 		s.Report.TotalHands += t.Report.TotalHands
 		s.Report.TotalBet += t.Player.Report.TotalBet
 		s.Report.TotalWon += t.Player.Report.TotalWon
 		s.Report.Duration += t.Report.Duration
-	}
+	//}
 }
 
 //

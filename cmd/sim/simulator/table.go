@@ -2,8 +2,9 @@ package simulator
 
 import (
 	"fmt"
-	"sync"
+	//"sync"
 	"time"
+	"os"
 
 	"github.com/dustin/go-humanize"
 
@@ -22,6 +23,8 @@ type Table struct {
 	Shoe       cards.Shoe
 	Parameters *arguments.Parameters
 	Report     arguments.Report
+	Up		   *cards.Card
+	Down	   *cards.Card
 }
 
 func NewTable(index int64, parameters *arguments.Parameters, rules *table.Rules) *Table {
@@ -37,11 +40,9 @@ func (t *Table) AddPlayer(player *Player) {
 	t.Player = player
 }
 
-func (t *Table) Session(wg *sync.WaitGroup, mimic bool) {
-	defer wg.Done()
-
-	fmt.Sprintf("    Start: %s table session\n", t.Parameters.Strategy);
-	fmt.Sprintf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
+func (t *Table) Session(mimic bool) {
+	fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy);
+	fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
 	t.Report.Start = time.Now()
 	for t.Report.TotalHands < t.Parameters.NumberOfHands {
         t.Status(t.Report.TotalRounds, t.Report.TotalHands)
@@ -53,38 +54,45 @@ func (t *Table) Session(wg *sync.WaitGroup, mimic bool) {
 			t.Report.TotalHands++
 			t.Dealer.Reset()
 			t.Player.PlaceBet(mimic)
-			up := t.dealCards()
+			t.dealCards()
 
-			if !mimic && up.BlackjackAce() {
+			if !mimic && t.Up.BlackjackAce() {
 				t.Player.Insurance()
 			}
 
 			if !t.Dealer.Hand.Blackjack() { // Dealer does not have 21
-				t.Player.Play(&t.Shoe, up, mimic)
+				t.Player.Play(&t.Shoe, t.Up, mimic)
+				t.Player.Show(t.Down)
 				if !t.Player.BustedOrBlackjack() { // If the player busted or has blackjack the dealer does not play
-					t.Dealer.Play(&t.Shoe)
+					for !t.Dealer.Stand() {
+						card := t.Shoe.Draw()
+						t.Dealer.Draw(card)
+						t.Player.Show(card)
+					}
 				}
 			}
 			t.Player.Payoff(t.Dealer.Hand.Blackjack(), t.Dealer.Hand.Busted(), t.Dealer.Hand.Total())
-			t.show(up)
 		}
 	}
 
 	t.Report.End = time.Now()
 	t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
-	fmt.Sprintf("\n      End: table\n")
-	fmt.Sprintf("    End: table session\n");
+	fmt.Printf("\n      End: table\n")
+	fmt.Printf("    End: table session\n");
 }
 
-func (t *Table) dealCards() *cards.Card {
+func (t *Table) dealCards() {
 	t.Player.Draw(t.Shoe.Draw())
-	up := t.Dealer.Draw(t.Shoe.Draw())
-	t.Player.Show(up)
+	t.Up = t.Shoe.Draw()
+	t.Dealer.Draw(t.Up)
+	t.Player.Show(t.Up)
+
 	t.Player.Draw(t.Shoe.Draw())
-	t.Dealer.Draw(t.Shoe.Draw())
-	return up
+	t.Down = t.Shoe.Draw()
+	t.Dealer.Draw(t.Down)
 }
 
+/*
 func (t *Table) show(up *cards.Card) {
 	for _, card := range t.Dealer.Hand.Cards {
 		if up.Index != card.Index {
@@ -92,6 +100,7 @@ func (t *Table) show(up *cards.Card) {
 		}
 	}
 }
+*/
 
 func (t *Table) Status(round int64, hand int64) {
 	if round == 0 {
@@ -104,4 +113,5 @@ func (t *Table) Status(round int64, hand int64) {
 		fmt.Printf(" : %s (rounds), %s (hands)\n", humanize.Comma(round+1), humanize.Comma(hand))
 		fmt.Printf("        ")
 	}
+	os.Stdout.Sync()
 }
