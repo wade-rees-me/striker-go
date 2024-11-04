@@ -2,19 +2,21 @@ package cards
 
 type Wager struct {
 	Hand         Hand  // The hand associated with the wager
+	MinimumBet	 int64
+	MaximumBet	 int64
 	AmountBet    int64 // The amount of the initial bet
 	AmountWon    int64 // The amount won from the wager
 	InsuranceBet int64
 	InsuranceWon int64
 }
 
-const (
-	MinimumBet = 2
-	MaximumBet = 98
-)
-
 func NewWager() *Wager {
 	return new(Wager)
+}
+
+func (w *Wager) InitWager(minimumBet, maximumBet int64) {
+	w.MinimumBet = minimumBet
+	w.MaximumBet = maximumBet
 }
 
 func (w *Wager) SplitWager(split *Wager) {
@@ -32,7 +34,7 @@ func (w *Wager) Reset() {
 }
 
 func (w *Wager) Bet(bet int64) {
-	w.AmountBet = (ClampInt(bet, MinimumBet, MaximumBet) + 1) / 2 * 2
+	w.AmountBet = (ClampInt(bet, w.MinimumBet, w.MaximumBet) + 1) / 2 * 2
 }
 
 func (w *Wager) Double() {

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	//"os"
 	"strconv"
 	"strings"
 
@@ -102,12 +101,7 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
 }
 
 func (s *Strategy) GetBet(seenCards *[13]int) int {
-	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-	bet := clamp(trueCount*2, constants.MinimumBet, constants.MaximumBet)
-	if bet%2 != 0 {
-		bet -= 1
-	}
-	return bet
+	return s.getTrueCount(seenCards, s.getRunningCount(seenCards)) * constants.TrueCountBet
 }
 
 func (s *Strategy) GetInsurance(seenCards *[13]int) bool {
@@ -116,7 +110,6 @@ func (s *Strategy) GetInsurance(seenCards *[13]int) bool {
 }
 
 func (s *Strategy) GetDouble(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
-//fmt.Printf("getDouble\n")
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     if (soft) {
         return s.processValue(s.SoftDouble[strconv.Itoa(total)][up.Offset], trueCount, false)
@@ -128,6 +121,7 @@ func (s *Strategy) GetSplit(seenCards *[13]int, pair, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     return s.processValue(s.PairSplit[strconv.Itoa(pair.Value)][up.Offset], trueCount, false)
 }
+
 func (s *Strategy) GetStand(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     if (soft) {
@@ -150,7 +144,7 @@ func (s *Strategy) getTrueCount(seenCards *[13]int, runningCount int) int {
 		unseen -= card
 	}
 	if unseen > 0 {
-		return int(float64(runningCount) / (float64(unseen) / 26.0))
+		return int(float64(runningCount) / (float64(unseen) / float64(constants.TrueCounTMultiplier)))
 	}
 	return 0
 }
@@ -173,15 +167,6 @@ func (s *Strategy) processValue(value string, trueCount int, missingValue bool) 
 	}
 	v, _ := strconv.Atoi(value)
 	return trueCount >= v
-}
-
-func clamp(val, min, max int) int {
-	if val < min {
-		return min
-	} else if val > max {
-		return max
-	}
-	return val
 }
 
 func parseIntSlice(data []interface{}) []int {

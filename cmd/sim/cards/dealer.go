@@ -15,12 +15,6 @@ func (d *Dealer) Reset() {
 	d.Hand.Reset()
 }
 
-func (d *Dealer) Play(s *Shoe) {
-	for !d.Stand() {
-		d.Draw(s.Draw())
-	}
-}
-
 func (d *Dealer) Stand() bool {
 	if d.HitSoft17 && d.Hand.Soft17() {
 		return false

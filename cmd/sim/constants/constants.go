@@ -21,6 +21,8 @@ const (
 
 	MinimumBet = 2
 	MaximumBet = 98
+	TrueCountBet = 2
+	TrueCounTMultiplier = 26
 )
 
 var StrategyUrl = os.Getenv("STRIKER_URL_ACE")

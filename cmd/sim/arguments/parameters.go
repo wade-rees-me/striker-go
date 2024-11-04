@@ -66,15 +66,6 @@ func (p *Parameters) Serialize() string {
 		"strategy":          p.Strategy,
 		"rounds":            p.NumberOfHands,
 		"number_of_decks":   p.NumberOfDecks,
-		//"hit_soft_17":       p.Rules.HitSoft17,
-		//"surrender":         p.Rules.Surrender,
-		//"double_any_two_cards": p.Rules.DoubleAnyTwoCards,
-		//"double_after_split":   p.Rules.DoubleAfterSplit,
-		//"resplit_aces":      p.Rules.ResplitAces,
-		//"hit_split_aces":    p.Rules.HitSplitAces,
-		//"blackjack_bets":    p.Rules.BlackjackBets,
-		//"blackjack_pays":    p.Rules.BlackjackPays,
-		//"penetration":       p.Rules.Penetration,
 	}
 
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")

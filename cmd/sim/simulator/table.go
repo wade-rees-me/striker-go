@@ -32,7 +32,7 @@ func NewTable(index int64, parameters *arguments.Parameters, rules *table.Rules)
 	t.Index = index
 	t.Parameters = parameters
 	t.Dealer = cards.NewDealer(rules.HitSoft17)
-	t.Shoe = *cards.NewShoe(cards.DeckOfPokerCards, parameters.NumberOfDecks, rules.Penetration)
+	t.Shoe = *cards.NewShoe(parameters.NumberOfDecks, rules.Penetration)
 	return t
 }
 
@@ -62,7 +62,6 @@ func (t *Table) Session(mimic bool) {
 
 			if !t.Dealer.Hand.Blackjack() { // Dealer does not have 21
 				t.Player.Play(&t.Shoe, t.Up, mimic)
-				t.Player.Show(t.Down)
 				if !t.Player.BustedOrBlackjack() { // If the player busted or has blackjack the dealer does not play
 					for !t.Dealer.Stand() {
 						card := t.Shoe.Draw()
@@ -71,6 +70,8 @@ func (t *Table) Session(mimic bool) {
 					}
 				}
 			}
+
+			t.Player.Show(t.Down)
 			t.Player.Payoff(t.Dealer.Hand.Blackjack(), t.Dealer.Hand.Busted(), t.Dealer.Hand.Total())
 		}
 	}
@@ -82,25 +83,15 @@ func (t *Table) Session(mimic bool) {
 }
 
 func (t *Table) dealCards() {
-	t.Player.Draw(t.Shoe.Draw())
+	t.Player.Draw(&t.Player.Wager.Hand, &t.Shoe)
 	t.Up = t.Shoe.Draw()
 	t.Dealer.Draw(t.Up)
 	t.Player.Show(t.Up)
 
-	t.Player.Draw(t.Shoe.Draw())
+	t.Player.Draw(&t.Player.Wager.Hand, &t.Shoe)
 	t.Down = t.Shoe.Draw()
 	t.Dealer.Draw(t.Down)
 }
-
-/*
-func (t *Table) show(up *cards.Card) {
-	for _, card := range t.Dealer.Hand.Cards {
-		if up.Index != card.Index {
-			t.Player.Show(&card)
-		}
-	}
-}
-*/
 
 func (t *Table) Status(round int64, hand int64) {
 	if round == 0 {

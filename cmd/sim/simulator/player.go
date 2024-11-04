@@ -25,6 +25,10 @@ func NewPlayer(rules *table.Rules, strategy *table.Strategy, numberOfCards int) 
 	p.Rules = rules
 	p.Strategy = strategy
 	p.NumberOfCards = numberOfCards
+	p.Wager.InitWager(constants.MinimumBet, constants.MaximumBet)
+	for i := 0; i < len(p.Splits); i++ {
+		p.Splits[i].InitWager(constants.MinimumBet, constants.MaximumBet)
+	}
 	return p
 }
 
@@ -65,7 +69,7 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 
 	if p.Strategy.GetDouble(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up) {
 		p.Wager.Double()
-		p.Wager.Hand.Draw(s.Draw())
+		p.Draw(&p.Wager.Hand, s)
 		return
 	}
 
@@ -74,20 +78,20 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 		p.SplitCount++
 		p.Wager.SplitWager(split)
 		if p.Wager.Hand.PairOfAces() {
-			p.Wager.Hand.Draw(s.Draw())
-			split.Hand.Draw(s.Draw())
+			p.Draw(&p.Wager.Hand, s)
+			p.Draw(&split.Hand, s)
 			return
 		}
-		p.Wager.Hand.Draw(s.Draw())
+		p.Draw(&p.Wager.Hand, s)
 		p.PlaySplit(&p.Wager, s, up)
-		split.Hand.Draw(s.Draw())
+		p.Draw(&split.Hand, s)
 		p.PlaySplit(split, s, up)
 		return
 	}
 
 	doStand := p.Strategy.GetStand(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up)
 	for !p.Wager.Hand.Busted() && !doStand {
-		p.Wager.Hand.Draw(s.Draw())
+		p.Draw(&p.Wager.Hand, s)
 		if !p.Wager.Hand.Busted() {
 			doStand = p.Strategy.GetStand(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up)
 		}
@@ -100,9 +104,9 @@ func (p *Player) PlaySplit(w *cards.Wager, shoe *cards.Shoe, up *cards.Card) {
 			split := &p.Splits[p.SplitCount]
 			p.SplitCount++
 			w.SplitWager(split)
-			w.Hand.Draw(shoe.Draw())
+			p.Draw(&w.Hand, shoe)
 			p.PlaySplit(w, shoe, up)
-			split.Hand.Draw(shoe.Draw())
+			p.Draw(&split.Hand, shoe)
 			p.PlaySplit(split, shoe, up)
 			return
 		}
@@ -110,16 +114,18 @@ func (p *Player) PlaySplit(w *cards.Wager, shoe *cards.Shoe, up *cards.Card) {
 
 	doStand := p.Strategy.GetStand(p.SeenCards, w.Hand.Total(), w.Hand.Soft(), up)
 	for !w.Hand.Busted() && !doStand {
-		w.Hand.Draw(shoe.Draw())
+		p.Draw(&w.Hand, shoe)
 		if !w.Hand.Busted() {
 			doStand = p.Strategy.GetStand(p.SeenCards, w.Hand.Total(), w.Hand.Soft(), up)
 		}
 	}
 }
 
-func (p *Player) Draw(c *cards.Card) *cards.Card {
-	p.Show(c)
-	return p.Wager.Hand.Draw(c)
+func (p *Player) Draw(h *cards.Hand, s *cards.Shoe) *cards.Card {
+	card := s.Draw()
+	p.Show(card)
+	h.Draw(card)
+	return card
 }
 
 func (p *Player) Show(c *cards.Card) {

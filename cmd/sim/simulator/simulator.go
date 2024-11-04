@@ -26,6 +26,7 @@ type Simulator struct {
 	Month      int
 	Day        int
 	Parameters *arguments.Parameters
+	Rules *table.Rules
 	Report     arguments.Report
 	TableList  []Table
 }
@@ -38,6 +39,7 @@ func NewSimulator(parameters *arguments.Parameters, rules *table.Rules, strategy
 	s.Day = t.Day()
 	s.Name = fmt.Sprintf("striker-go--%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
 	s.Parameters = parameters
+	s.Rules = rules
 
 	table := NewTable(1, parameters, rules)
 	player := NewPlayer(rules, strategy, table.Shoe.NumberOfCards)
@@ -72,8 +74,8 @@ func (s *Simulator) SimulatorProcess() error {
 	tbs.TotalTime = fmt.Sprintf("%d", int64(s.Report.Duration.Seconds()))
 	tbs.AverageTime = fmt.Sprintf("%06.2f seconds", s.Report.Duration.Seconds()*float64(1000000)/float64(s.Report.TotalHands))
 	tbs.Advantage = fmt.Sprintf("%+04.3f %%", (float64(s.Report.TotalWon) / float64(s.Report.TotalBet) * float64(100)))
-	tbs.Parameters = "n/a"
-	tbs.Rules = "n/a"
+	tbs.Parameters = s.Parameters.Serialize()
+	tbs.Rules = s.Rules.Serialize()
 	tbs.Payload = "n/a"
 
 	fmt.Printf("\n")
