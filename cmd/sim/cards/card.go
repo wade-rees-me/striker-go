@@ -1,28 +1,5 @@
 package cards
 
-const (
-	Spades  = "spades"
-	Diamond = "diamond"
-	Clubs   = "clubs"
-	Hearts  = "hearts"
-)
-
-const (
-	Two   = "two"
-	Three = "three"
-	Four  = "four"
-	Five  = "five"
-	Six   = "six"
-	Seven = "seven"
-	Eight = "eight"
-	Nine  = "nine"
-	Ten   = "ten"
-	Jack  = "jack"
-	Queen = "queen"
-	King  = "king"
-	Ace   = "ace"
-)
-
 type Card struct {
 	Suit   string // Suit of the card (e.g., "hearts")
 	Rank   string // Rank of the card (e.g., "ace")
@@ -31,8 +8,6 @@ type Card struct {
 	Offset int    // Index of the card in a suit
 }
 
-var Suits = []string{Spades, Diamond, Clubs, Hearts}
-
 func NewCard(suit, rank string, value, offset int) *Card {
 	c := new(Card)
 	c.Suit = suit
@@ -40,4 +15,8 @@ func NewCard(suit, rank string, value, offset int) *Card {
 	c.Value = value
 	c.Offset = offset
 	return c
+}
+
+func (c *Card) BlackjackAce() bool {
+	return c.Value == 11
 }

@@ -1,10 +1,6 @@
 package simulator
 
-import (
-	"time"
-)
-
-type SimulationDatabaseTable struct {
+type Simulation struct {
 	Playbook    string `json:"playbook"`
 	Guid        string `json:"guid"`
 	Simulator   string `json:"simulator"`
@@ -12,37 +8,13 @@ type SimulationDatabaseTable struct {
 	Simulations string `json:"simulations"`
 	Rounds      string `json:"rounds"`
 	Hands       string `json:"hands"`
-	TotalBet    string `json:"totalbet"`
-	TotalWon    string `json:"totalwon"`
+	TotalBet    string `json:"total_bet"`
+	TotalWon    string `json:"total_won"`
 	Advantage   string `json:"advantage"`
-	TotalTime   string `json:"totaltime"`
-	AverageTime string `json:"averagetime"`
+	TotalTime   string `json:"total_time"`
+	AverageTime string `json:"average_time"`
 	Parameters  string `json:"parameters"`
-	Payload		string `json:"payload"`
+	Rules		string `json:"rules"`
+	Payload     string `json:"payload"`
 }
 
-type SimulationParameters struct {
-	Guid          string
-	Processor     string
-	Timestamp     string
-	Decks         string // single-deck
-	Strategy      string // basic
-	Playbook      string // single-deck-basic
-	BlackjackPays string
-	Tables        int64
-	Rounds        int64
-	NumberOfDecks int
-	Penetration   float64
-	OptimumTables int64
-	TableRules    *RulesTableStruct
-}
-
-type SimulationReport struct {
-	TotalRounds int64
-	TotalHands  int64
-	TotalBet    int64
-	TotalWon    int64
-	Start       time.Time
-	End         time.Time
-	Duration    time.Duration
-}

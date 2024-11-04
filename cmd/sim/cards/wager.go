@@ -1,21 +1,22 @@
 package cards
 
-import (
-	"fmt"
-)
-
 type Wager struct {
-	Hand		 Hand  // The hand associated with the wager
-	AmountBet	 int64 // The amount of the initial bet
-	AmountWon	 int64 // The amount won from the wager
-	DoubleBet	 int64 // The amount of the double bet
-	DoubleWon	 int64 // The amount won from the wager
+	Hand         Hand  // The hand associated with the wager
+	MinimumBet	 int64
+	MaximumBet	 int64
+	AmountBet    int64 // The amount of the initial bet
+	AmountWon    int64 // The amount won from the wager
 	InsuranceBet int64
 	InsuranceWon int64
 }
 
 func NewWager() *Wager {
 	return new(Wager)
+}
+
+func (w *Wager) InitWager(minimumBet, maximumBet int64) {
+	w.MinimumBet = minimumBet
+	w.MaximumBet = maximumBet
 }
 
 func (w *Wager) SplitWager(split *Wager) {
@@ -28,21 +29,16 @@ func (w *Wager) Reset() {
 	w.Hand.Reset()
 	w.AmountBet = 0
 	w.AmountWon = 0
-	w.DoubleBet = 0
-	w.DoubleWon = 0
 	w.InsuranceBet = 0
 	w.InsuranceWon = 0
 }
 
-func (w *Wager) Bet(b int64) {
-	if b % 2 != 0 {
-		panic("All bets must be in multiples of 2.")
-	}
-	w.AmountBet = b
+func (w *Wager) Bet(bet int64) {
+	w.AmountBet = (ClampInt(bet, w.MinimumBet, w.MaximumBet) + 1) / 2 * 2
 }
 
 func (w *Wager) Double() {
-	w.DoubleBet = w.AmountBet
+	w.AmountBet *= 2
 }
 
 func (w *Wager) Blackjack() bool {
@@ -55,12 +51,10 @@ func (w *Wager) WonBlackjack(pays, bet int64) {
 
 func (w *Wager) Won() {
 	w.AmountWon = w.AmountBet
-	w.DoubleWon = w.DoubleBet
 }
 
 func (w *Wager) Lost() {
 	w.AmountWon = -w.AmountBet
-	w.DoubleWon = -w.DoubleBet
 }
 
 func (w *Wager) Push() {
@@ -74,9 +68,13 @@ func (w *Wager) LostInsurance() {
 	w.InsuranceWon = -w.InsuranceBet
 }
 
-func (w *Wager) ToString() string {
-	if w.Hand.Soft() {
-		return fmt.Sprintf("bet: %d + %d, soft %d (%s)", w.AmountBet, w.DoubleBet, w.Hand.Total(), w.Hand.ToString())
+func ClampInt(value, min, max int64) int64 {
+	if value < min {
+		return min
 	}
-	return fmt.Sprintf("bet: %d + %d, hard %d (%s)", w.AmountBet, w.DoubleBet, w.Hand.Total(), w.Hand.ToString())
+	if value > max {
+		return max
+	}
+	return value
 }
+
