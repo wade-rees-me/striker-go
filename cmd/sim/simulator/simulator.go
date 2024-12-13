@@ -84,6 +84,12 @@ func (s *Simulator) SimulatorProcess() error {
 	fmt.Printf("    %-24s: %s\n", "Number of rounds",  humanize.Comma(s.Report.TotalRounds))
 	fmt.Printf("    %-24s: %s, %+04.3f average bet per hand\n", "Total bet", humanize.Comma(s.Report.TotalBet), (float64(s.Report.TotalBet) / float64(s.Report.TotalHands)))
 	fmt.Printf("    %-24s: %s, %+04.3f average win per hand\n", "Total won", humanize.Comma(s.Report.TotalWon), (float64(s.Report.TotalWon) / float64(s.Report.TotalHands)))
+	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total blackjacks", humanize.Comma(s.Report.TotalBlackjacks), (float64(s.Report.TotalBlackjacks) / float64(s.Report.TotalHands) * 100.0))
+	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total doubles", humanize.Comma(s.Report.TotalDoubles), (float64(s.Report.TotalDoubles) / float64(s.Report.TotalHands) * 100.0))
+	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total split", humanize.Comma(s.Report.TotalSplits), (float64(s.Report.TotalSplits) / float64(s.Report.TotalHands) * 100.0))
+	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total wins", humanize.Comma(s.Report.TotalWins), (float64(s.Report.TotalWins) / float64(s.Report.TotalHands) * 100.0))
+	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total pushes", humanize.Comma(s.Report.TotalPushes), (float64(s.Report.TotalPushes) / float64(s.Report.TotalHands) * 100.0))
+	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total loses", humanize.Comma(s.Report.TotalLoses), (float64(s.Report.TotalLoses) / float64(s.Report.TotalHands) * 100.0))
 	fmt.Printf("    %-24s: %s seconds\n", "Total time", humanize.Comma(int64(s.Report.Duration.Seconds())))
 	fmt.Printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.AverageTime)
 	fmt.Printf("    %-24s: %s\n", "Player advantage", tbs.Advantage) /* House Edge (%)=(Total Loss/Total Bet)×100 */
@@ -116,6 +122,12 @@ t.Session("mimic" == s.Parameters.Strategy)
 
 		s.Report.TotalRounds += t.Report.TotalRounds
 		s.Report.TotalHands += t.Report.TotalHands
+		s.Report.TotalBlackjacks += t.Player.Report.TotalBlackjacks
+		s.Report.TotalDoubles += t.Player.Report.TotalDoubles
+		s.Report.TotalSplits += t.Player.Report.TotalSplits
+		s.Report.TotalWins += t.Player.Report.TotalWins
+		s.Report.TotalPushes += t.Player.Report.TotalPushes
+		s.Report.TotalLoses += t.Player.Report.TotalLoses
 		s.Report.TotalBet += t.Player.Report.TotalBet
 		s.Report.TotalWon += t.Player.Report.TotalWon
 		s.Report.Duration += t.Report.Duration

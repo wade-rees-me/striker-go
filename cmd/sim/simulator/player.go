@@ -57,6 +57,7 @@ func (p *Player) Insurance() {
 
 func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 	if p.Wager.Hand.Blackjack() {
+		p.Report.TotalBlackjacks++
 		return
 	}
 
@@ -70,12 +71,14 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 	if p.Strategy.GetDouble(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up) {
 		p.Wager.Double()
 		p.Draw(&p.Wager.Hand, s)
+		p.Report.TotalDoubles++
 		return
 	}
 
 	if p.Wager.Hand.Pair() && p.Strategy.GetSplit(p.SeenCards, &p.Wager.Hand.Cards[0], up) {
 		split := &p.Splits[p.SplitCount]
 		p.SplitCount++
+		p.Report.TotalSplits++
 		p.Wager.SplitWager(split)
 		if p.Wager.Hand.PairOfAces() {
 			p.Draw(&p.Wager.Hand, s)
@@ -103,6 +106,7 @@ func (p *Player) PlaySplit(w *cards.Wager, shoe *cards.Shoe, up *cards.Card) {
 		if p.Strategy.GetSplit(p.SeenCards, &w.Hand.Cards[0], up) {
 			split := &p.Splits[p.SplitCount]
 			p.SplitCount++
+			p.Report.TotalSplits++
 			w.SplitWager(split)
 			p.Draw(&w.Hand, shoe)
 			p.PlaySplit(w, shoe, up)
@@ -169,19 +173,25 @@ func (p *Player) payoffHand(w *cards.Wager, dealerBlackjack bool, dealerBusted b
 	if dealerBlackjack {
 		if w.Hand.Blackjack() {
 			w.Push()
+			p.Report.TotalPushes++
 		} else {
 			w.Lost()
+			p.Report.TotalLoses++
 		}
 	} else if w.Hand.Blackjack() {
 		w.WonBlackjack(int64(p.Rules.BlackjackPays), int64(p.Rules.BlackjackBets))
 	} else if w.Hand.Busted() {
 		w.Lost()
+		p.Report.TotalLoses++
 	} else if dealerBusted || (w.Hand.Total() > dealerTotal) {
 		w.Won()
+		p.Report.TotalWins++
 	} else if dealerTotal > w.Hand.Total() {
 		w.Lost()
+		p.Report.TotalLoses++
 	} else {
 		w.Push()
+		p.Report.TotalPushes++
 	}
 	p.Report.TotalWon += w.AmountWon
 	p.Report.TotalBet += w.AmountBet + w.InsuranceBet
@@ -190,12 +200,16 @@ func (p *Player) payoffHand(w *cards.Wager, dealerBlackjack bool, dealerBusted b
 func (p *Player) payoffSplit(w *cards.Wager, dealerBusted bool, dealerTotal int) {
 	if w.Hand.Busted() {
 		w.Lost()
+		p.Report.TotalLoses++
 	} else if dealerBusted || (w.Hand.Total() > dealerTotal) {
 		w.Won()
+		p.Report.TotalWins++
 	} else if dealerTotal > w.Hand.Total() {
 		w.Lost()
+		p.Report.TotalLoses++
 	} else {
 		w.Push()
+		p.Report.TotalPushes++
 	}
 	p.Report.TotalWon += w.AmountWon
 	p.Report.TotalBet += w.AmountBet

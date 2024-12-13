@@ -18,11 +18,12 @@ type Strategy struct {
     Counts         []int                        `json:"counts"`
     Bets           []int                        `json:"bets"`
     Insurance      string                       `json:"insurance"`
-    SoftDouble     map[string][]string          `json:"soft-double"`
-    HardDouble     map[string][]string          `json:"hard-double"`
-    PairSplit      map[string][]string          `json:"pair-split"`
-    SoftStand      map[string][]string          `json:"soft-stand"`
-    HardStand      map[string][]string          `json:"hard-stand"`
+    SoftDouble     *Chart
+    HardDouble     *Chart
+    PairSplit      *Chart
+    SoftStand      *Chart
+    HardStand      *Chart
+
 	NumberOfCards int
 	JsonResponse []map[string]interface{}
 	JsonPayload []map[string]interface{}
@@ -30,6 +31,13 @@ type Strategy struct {
 
 func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
 	s := &Strategy{NumberOfCards: numberOfCards}
+
+	s.SoftDouble = NewChart("Soft Double")
+	s.HardDouble = NewChart("Hard Double")
+	s.PairSplit = NewChart("Pair Split")
+	s.SoftStand = NewChart("Soft Stand")
+	s.HardStand = NewChart("Hard Stand")
+
 	if strategy != "mimic" {
 		err := s.fetchJson("http://localhost:57910/striker/v1/strategy")
 		if err != nil {
@@ -41,6 +49,12 @@ func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
 		if err != nil {
 			log.Fatalf("Error fetching table: %v", err)
 		}
+
+		s.SoftDouble.Print()
+		s.HardDouble.Print()
+		s.PairSplit.Print()
+		s.SoftStand.Print()
+		s.HardStand.Print()
 	}
 	return s
 }
@@ -87,11 +101,12 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
             s.Counts = parseIntSlice(result["counts"].([]interface{}))
             s.Bets = parseIntSlice(result["bets"].([]interface{}))
             s.Insurance = result["insurance"].(string)
-            s.SoftDouble = parseStringMap(result["soft-double"].(map[string]interface{}))
-            s.HardDouble = parseStringMap(result["hard-double"].(map[string]interface{}))
-            s.PairSplit = parseStringMap(result["pair-split"].(map[string]interface{}))
-            s.SoftStand = parseStringMap(result["soft-stand"].(map[string]interface{}))
-            s.HardStand = parseStringMap(result["hard-stand"].(map[string]interface{}))
+
+            parseStringMap(result["soft-double"].(map[string]interface{}), s.SoftDouble)
+            parseStringMap(result["hard-double"].(map[string]interface{}), s.HardDouble)
+            parseStringMap(result["pair-split"].(map[string]interface{}), s.PairSplit)
+            parseStringMap(result["soft-stand"].(map[string]interface{}), s.SoftStand)
+            parseStringMap(result["hard-stand"].(map[string]interface{}), s.HardStand)
 //fmt.Printf("strategy:::: %v\n", s)
 
 			return nil
@@ -112,22 +127,22 @@ func (s *Strategy) GetInsurance(seenCards *[13]int) bool {
 func (s *Strategy) GetDouble(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     if (soft) {
-        return s.processValue(s.SoftDouble[strconv.Itoa(total)][up.Offset], trueCount, false)
+        return s.processValue(s.SoftDouble.GetValueByTotal(total, up.Offset), trueCount, false)
     }
-    return s.processValue(s.HardDouble[strconv.Itoa(total)][up.Offset], trueCount, false)
+    return s.processValue(s.HardDouble.GetValueByTotal(total, up.Offset), trueCount, false)
 }
 
 func (s *Strategy) GetSplit(seenCards *[13]int, pair, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-    return s.processValue(s.PairSplit[strconv.Itoa(pair.Value)][up.Offset], trueCount, false)
+    return s.processValue(s.PairSplit.GetValue(pair.Key, up.Offset), trueCount, false)
 }
 
 func (s *Strategy) GetStand(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     if (soft) {
-        return s.processValue(s.SoftStand[strconv.Itoa(total)][up.Offset], trueCount, false)
+        return s.processValue(s.SoftStand.GetValueByTotal(total, up.Offset), trueCount, false)
     }
-    return s.processValue(s.HardStand[strconv.Itoa(total)][up.Offset], trueCount, false)
+    return s.processValue(s.HardStand.GetValueByTotal(total, up.Offset), trueCount, false)
 }
 
 func (s *Strategy) getRunningCount(seenCards *[13]int) int {
@@ -177,19 +192,18 @@ func parseIntSlice(data []interface{}) []int {
 	return result
 }
 
-func parseStringMap(data map[string]interface{}) map[string][]string {
-	result := make(map[string][]string)
+func parseStringMap(data map[string]interface{}, chart *Chart) {
+	//result := make(map[string][]string)
 	for key, val := range data {
-		result[key] = parseStringSlice(val.([]interface{}))
+		parseStringSlice(val.([]interface{}), key, chart)
 	}
-	return result
 }
 
-func parseStringSlice(data []interface{}) []string {
-	result := make([]string, len(data))
+func parseStringSlice(data []interface{}, key string, chart *Chart) {
+	//result := make([]string, len(data))
 	for i, v := range data {
-		result[i] = v.(string)
+		//result[i] = v.(string)
+		chart.Insert(key, i, v.(string))
 	}
-	return result
 }
 
