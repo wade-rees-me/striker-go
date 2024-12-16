@@ -6,10 +6,7 @@ import (
 	"time"
 	"encoding/json"
 
-	//"github.com/google/uuid"
 	"github.com/dustin/go-humanize"
-
-	//"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 

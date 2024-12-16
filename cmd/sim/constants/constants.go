@@ -25,7 +25,7 @@ const (
 	TrueCounTMultiplier = 26
 )
 
-var StrategyUrl = os.Getenv("STRIKER_URL_ACE")
-var StrategyMlbUrl = os.Getenv("STRIKER_URL_MLB")
+var StrategyUrl = os.Getenv("STRIKER_URL_STRATEGY")
+//var StrategyMlbUrl = os.Getenv("STRIKER_URL_MLB")
 var RulesUrl = os.Getenv("STRIKER_URL_RULES")
 var SimulationUrl = os.Getenv("STRIKER_URL_SIMULATION")

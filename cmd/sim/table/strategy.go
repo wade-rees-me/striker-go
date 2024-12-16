@@ -88,14 +88,12 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
 			payString := string(payload)
 			newPay := payString[1 : len(payString)-1]
 			jsonStr := strings.ReplaceAll(newPay, "\\", "")
-//fmt.Printf("jsonStr:::: %v\n", jsonStr)
 
 			var result map[string]interface{}
 			if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
 				fmt.Println("Error parsing JSON:", err)
 				log.Fatalf("Error parsing JSON string: %v", err)
 			}
-//fmt.Printf("result:::: %v\n", result)
 
             s.Playbook = result["playbook"].(string)
             s.Counts = parseIntSlice(result["counts"].([]interface{}))
@@ -107,7 +105,6 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
             parseStringMap(result["pair-split"].(map[string]interface{}), s.PairSplit)
             parseStringMap(result["soft-stand"].(map[string]interface{}), s.SoftStand)
             parseStringMap(result["hard-stand"].(map[string]interface{}), s.HardStand)
-//fmt.Printf("strategy:::: %v\n", s)
 
 			return nil
 		}
@@ -193,16 +190,13 @@ func parseIntSlice(data []interface{}) []int {
 }
 
 func parseStringMap(data map[string]interface{}, chart *Chart) {
-	//result := make(map[string][]string)
 	for key, val := range data {
 		parseStringSlice(val.([]interface{}), key, chart)
 	}
 }
 
 func parseStringSlice(data []interface{}, key string, chart *Chart) {
-	//result := make([]string, len(data))
 	for i, v := range data {
-		//result[i] = v.(string)
 		chart.Insert(key, i, v.(string))
 	}
 }

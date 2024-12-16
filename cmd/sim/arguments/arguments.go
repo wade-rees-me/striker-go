@@ -15,7 +15,6 @@ type Arguments struct {
 	PolynomialFlag  bool
 	HighLowFlag     bool
 	WongFlag        bool
-	StrikerFlag     bool
 	SingleDeckFlag  bool
 	DoubleDeckFlag  bool
 	SixShoeFlag     bool
@@ -52,8 +51,6 @@ func NewArguments() *Arguments {
 			arguments.HighLowFlag = true
 		case "-W", "--wong":
 			arguments.WongFlag = true
-		case "-S", "--striker":
-			arguments.StrikerFlag = true
 		case "-1", "--single-deck":
 			arguments.SingleDeckFlag = true
 		case "-2", "--double-deck":
@@ -90,7 +87,6 @@ Options:
   -P, --polynomial                         Use the polynomial regression player strategy
   -H, --high-low                           Use the high low count player strategy
   -W, --wong                               Use the Wong count player strategy
-  -S, --striker                            Use the Striker machine learning player strategy
   -1, --single-deck                        Use a single deck of cards and rules
   -2, --double-deck                        Use a double deck of cards and rules
   -6, --six-shoe                           Use a six deck shoe of cards and rules`)
@@ -109,8 +105,6 @@ func (args *Arguments) GetStrategy() string {
 		return "high-low"
 	case args.WongFlag:
 		return "wong"
-	case args.StrikerFlag:
-		return "striker"
 	default:
 		return "basic"
 	}

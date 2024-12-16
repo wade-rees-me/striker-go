@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	//"log"
-	//"time"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/table"
@@ -14,18 +12,18 @@ import (
 //
 func main() {
     fmt.Printf("Start: %s ...\n\n", constants.StrikerWhoAmI)
-	argumentsX := arguments.NewArguments()
-    parametersX := arguments.NewParameters(argumentsX.GetDecks(), argumentsX.GetStrategy(), argumentsX.GetNumberOfDecks(), argumentsX.NumberOfHands)
-    rulesX := table.NewRules(argumentsX.GetDecks())
-	strategyX := table.NewStrategy(argumentsX.GetDecks(), argumentsX.GetStrategy(), argumentsX.GetNumberOfDecks() * 52)
-	simulatorX := simulator.NewSimulator(parametersX, rulesX, strategyX)
+	args := arguments.NewArguments()
+    params := arguments.NewParameters(args.GetDecks(), args.GetStrategy(), args.GetNumberOfDecks(), args.NumberOfHands)
+    rules := table.NewRules(args.GetDecks())
+	strategy := table.NewStrategy(args.GetDecks(), args.GetStrategy(), args.GetNumberOfDecks() * 52)
+	sim := simulator.NewSimulator(params, rules, strategy)
 
     fmt.Printf("  -- arguments -------------------------------------------------------------------\n");
-    parametersX.Print();
-    rulesX.Print();
+    params.Print();
+    rules.Print();
     fmt.Printf("  --------------------------------------------------------------------------------\n");
 
-	simulatorX.SimulatorProcess()
+	sim.SimulatorProcess()
     fmt.Printf("End: %s\n\n", constants.StrikerWhoAmI)
 }
 
