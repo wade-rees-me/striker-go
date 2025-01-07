@@ -16,7 +16,6 @@ import (
 type Strategy struct {
     Playbook       string                       `json:"playbook"`
     Counts         []int                        `json:"counts"`
-    Bets           []int                        `json:"bets"`
     Insurance      string                       `json:"insurance"`
     SoftDouble     *Chart
     HardDouble     *Chart
@@ -55,6 +54,7 @@ func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
 		s.PairSplit.Print()
 		s.SoftStand.Print()
 		s.HardStand.Print()
+		s.PrintCounts();
 	}
 	return s
 }
@@ -96,9 +96,9 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
 			}
 
             s.Playbook = result["playbook"].(string)
-            s.Counts = parseIntSlice(result["counts"].([]interface{}))
-            s.Bets = parseIntSlice(result["bets"].([]interface{}))
             s.Insurance = result["insurance"].(string)
+            s.Counts = parseIntSlice(result["counts"].([]interface{}))
+			s.Counts = append([]int{0, 0}, s.Counts...)
 
             parseStringMap(result["soft-double"].(map[string]interface{}), s.SoftDouble)
             parseStringMap(result["hard-double"].(map[string]interface{}), s.HardDouble)
@@ -112,37 +112,37 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
 	return fmt.Errorf("No matching strategy found")
 }
 
-func (s *Strategy) GetBet(seenCards *[13]int) int {
+func (s *Strategy) GetBet(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) int {
 	return s.getTrueCount(seenCards, s.getRunningCount(seenCards)) * constants.TrueCountBet
 }
 
-func (s *Strategy) GetInsurance(seenCards *[13]int) bool {
+func (s *Strategy) GetInsurance(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     return s.processValue(s.Insurance, trueCount, false)
 }
 
-func (s *Strategy) GetDouble(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
+func (s *Strategy) GetDouble(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, total int, soft bool, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     if (soft) {
-        return s.processValue(s.SoftDouble.GetValueByTotal(total, up.Offset), trueCount, false)
+        return s.processValue(s.SoftDouble.GetValueByTotal(total, up.Value), trueCount, false)
     }
-    return s.processValue(s.HardDouble.GetValueByTotal(total, up.Offset), trueCount, false)
+    return s.processValue(s.HardDouble.GetValueByTotal(total, up.Value), trueCount, false)
 }
 
-func (s *Strategy) GetSplit(seenCards *[13]int, pair, up *cards.Card) bool {
+func (s *Strategy) GetSplit(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, pair, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-    return s.processValue(s.PairSplit.GetValue(pair.Key, up.Offset), trueCount, false)
+    return s.processValue(s.PairSplit.GetValue(pair.Key, up.Value), trueCount, false)
 }
 
-func (s *Strategy) GetStand(seenCards *[13]int, total int, soft bool, up *cards.Card) bool {
+func (s *Strategy) GetStand(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, total int, soft bool, up *cards.Card) bool {
     trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
     if (soft) {
-        return s.processValue(s.SoftStand.GetValueByTotal(total, up.Offset), trueCount, false)
+        return s.processValue(s.SoftStand.GetValueByTotal(total, up.Value), trueCount, false)
     }
-    return s.processValue(s.HardStand.GetValueByTotal(total, up.Offset), trueCount, false)
+    return s.processValue(s.HardStand.GetValueByTotal(total, up.Value), trueCount, false)
 }
 
-func (s *Strategy) getRunningCount(seenCards *[13]int) int {
+func (s *Strategy) getRunningCount(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) int {
 	running := 0
 	for i, count := range s.Counts {
 		running += count * seenCards[i]
@@ -150,7 +150,7 @@ func (s *Strategy) getRunningCount(seenCards *[13]int) int {
 	return running
 }
 
-func (s *Strategy) getTrueCount(seenCards *[13]int, runningCount int) int {
+func (s *Strategy) getTrueCount(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, runningCount int) int {
 	unseen := s.NumberOfCards
 	for _, card := range seenCards[2:12] {
 		unseen -= card
@@ -199,5 +199,17 @@ func parseStringSlice(data []interface{}, key string, chart *Chart) {
 	for i, v := range data {
 		chart.Insert(key, i, v.(string))
 	}
+}
+
+// Print prints the entire chart to the console
+func (s *Strategy) PrintCounts() {
+	fmt.Println("Counts")
+	fmt.Println("--------------------2-----3-----4-----5-----6-----7-----8-----9-----X-----A---")
+	fmt.Printf("     ")
+	for _, value := range s.Counts {
+		fmt.Printf("%4d, ", value)
+	}
+	fmt.Println()
+	fmt.Println("------------------------------------------------------------------------------")
 }
 

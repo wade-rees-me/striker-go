@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	MINIMUM_CARD_VALUE = 2
+	MAXIMUM_CARD_VALUE = 11
+)
+
 // Shoe represents a collection of cards
 type Shoe struct {
 	cards         []*Card
@@ -21,7 +26,7 @@ type Shoe struct {
 var suits = []string{"spades", "diamonds", "clubs", "hearts"}
 var cardNames = []string{"two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king", "ace"}
 var cardValues = []int{2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11}
-var cardKeys = []string{"2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"}
+var cardKeys = []string{"2", "3", "4", "5", "6", "7", "8", "9", "X", "X", "X", "X", "A"}
 
 // NewShoe creates a new shoe of cards
 func NewShoe(numberOfDecks int, penetration float64) *Shoe {
@@ -30,7 +35,7 @@ func NewShoe(numberOfDecks int, penetration float64) *Shoe {
 	for i := 0; i < numberOfDecks; i++ {
 		for _, suit := range suits {
 			for j, name := range cardNames {
-				card := NewCard(suit, name, cardKeys[j], cardValues[j], j)
+				card := NewCard(suit, name, cardKeys[j], cardValues[j])
 				cards = append(cards, card)
 			}
 		}

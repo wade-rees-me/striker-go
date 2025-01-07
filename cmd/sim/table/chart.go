@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"strconv"
+
+	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
 )
 
 // Define the size of the table
@@ -12,7 +14,7 @@ const TableSize = 21
 // ChartRow represents a single row in the chart
 type ChartRow struct {
 	Key   string
-	Value [13]string
+	Value [cards.MAXIMUM_CARD_VALUE + 1]string
 }
 
 // Chart represents the main chart structure
@@ -47,7 +49,7 @@ func (c *Chart) Insert(key string, up int, value string) {
 		c.NextRow++
 		c.Rows[index].Key = strings.ToUpper(key)
 	}
-	c.Rows[index].Value[up] = strings.ToUpper(value)
+	c.Rows[index].Value[cards.MINIMUM_CARD_VALUE + up] = strings.ToUpper(value)
 }
 
 // GetValue retrieves a value from the chart
@@ -68,7 +70,7 @@ func (c *Chart) GetValueByTotal(total, up int) string {
 // Print prints the entire chart to the console
 func (c *Chart) Print() {
 	fmt.Println(c.Name)
-	fmt.Println("--------2-----3-----4-----5-----6-----7-----8-----9-----T-----J-----Q-----K-----A---")
+	fmt.Println("--------------------2-----3-----4-----5-----6-----7-----8-----9-----X-----A---")
 	for i := 0; i < c.NextRow; i++ {
 		row := c.Rows[i]
 		fmt.Printf("%2s : ", row.Key)
@@ -77,7 +79,7 @@ func (c *Chart) Print() {
 		}
 		fmt.Println()
 	}
-	fmt.Println("------------------------------------------------------------------------------------")
+	fmt.Println("------------------------------------------------------------------------------")
 }
 
 // getRow finds the index of the row for the given key

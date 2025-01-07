@@ -17,7 +17,7 @@ type Player struct {
 	Strategy 	  *table.Strategy
 	Report        arguments.Report
 	NumberOfCards int
-	SeenCards     *[13]int
+	SeenCards     *[cards.MAXIMUM_CARD_VALUE + 1]int
 }
 
 func NewPlayer(rules *table.Rules, strategy *table.Strategy, numberOfCards int) *Player {
@@ -33,7 +33,7 @@ func NewPlayer(rules *table.Rules, strategy *table.Strategy, numberOfCards int) 
 }
 
 func (p *Player) Shuffle() {
-	p.SeenCards = new([13]int)
+	p.SeenCards = new([cards.MAXIMUM_CARD_VALUE + 1]int)
 }
 
 func (p *Player) PlaceBet(mimic bool) {
@@ -133,7 +133,7 @@ func (p *Player) Draw(h *cards.Hand, s *cards.Shoe) *cards.Card {
 }
 
 func (p *Player) Show(c *cards.Card) {
-	p.SeenCards[c.Offset]++
+	p.SeenCards[c.Value]++
 }
 
 func (p *Player) BustedOrBlackjack() bool {
