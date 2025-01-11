@@ -2,7 +2,6 @@ package simulator
 
 import (
 	"fmt"
-	//"sync"
 	"time"
 	"os"
 

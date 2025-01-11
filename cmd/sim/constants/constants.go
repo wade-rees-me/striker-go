@@ -6,7 +6,7 @@ import (
 
 // General constants
 const (
-	StrikerVersion = "v01.02.02"
+	StrikerVersion = "v02.02.00"
 	TimeLayout = "2006-01-02 15:04:05 -0700"
 )
 
@@ -26,6 +26,5 @@ const (
 )
 
 var StrategyUrl = os.Getenv("STRIKER_URL_STRATEGY")
-//var StrategyMlbUrl = os.Getenv("STRIKER_URL_MLB")
 var RulesUrl = os.Getenv("STRIKER_URL_RULES")
 var SimulationUrl = os.Getenv("STRIKER_URL_SIMULATION")

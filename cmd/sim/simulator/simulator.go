@@ -7,10 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
-	//"sync"
 	"time"
 
-	//"github.com/google/uuid"
 	"github.com/dustin/go-humanize"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
@@ -26,7 +24,7 @@ type Simulator struct {
 	Month      int
 	Day        int
 	Parameters *arguments.Parameters
-	Rules *table.Rules
+	Rules	   *table.Rules
 	Report     arguments.Report
 	TableList  []Table
 }
@@ -37,7 +35,7 @@ func NewSimulator(parameters *arguments.Parameters, rules *table.Rules, strategy
 	s.Year = t.Year()
 	s.Month = int(t.Month())
 	s.Day = t.Day()
-	s.Name = fmt.Sprintf("striker-go--%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
+	s.Name = fmt.Sprintf("striker-go-%4d_%02d_%02d_%012d", s.Year, s.Month, s.Day, t.Unix())
 	s.Parameters = parameters
 	s.Rules = rules
 
@@ -109,16 +107,14 @@ func (s *Simulator) SimulatorProcess() error {
 }
 
 func (s *Simulator) RunSimulation() {
-	//for i := range s.TableList {
-		//t := &s.TableList[i]
-		//t.Session("mimic" == s.Parameters.Strategy)
-	//}
-t := &s.TableList[0]
-t.Session("mimic" == s.Parameters.Strategy)
+	for i := range s.TableList {
+		t := &s.TableList[i]
+		t.Session("mimic" == s.Parameters.Strategy)
+	}
 
 	// Merge tables into one report
-	//for i := range s.TableList {
-		t = &s.TableList[0]
+	for i := range s.TableList {
+		t := &s.TableList[i]
 
 		s.Report.TotalRounds += t.Report.TotalRounds
 		s.Report.TotalHands += t.Report.TotalHands
@@ -131,13 +127,12 @@ t.Session("mimic" == s.Parameters.Strategy)
 		s.Report.TotalBet += t.Player.Report.TotalBet
 		s.Report.TotalWon += t.Player.Report.TotalWon
 		s.Report.Duration += t.Report.Duration
-	//}
+	}
 }
 
 //
 func InsertSimulationTable(s *Simulation, playbook string) error {
 	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationUrl, s.Simulator, playbook, s.Guid)
-	//log.Printf("Insert Simulation: %s\n", url)
 
 	// Convert data to JSON
 	jsonData, err := json.Marshal(s)

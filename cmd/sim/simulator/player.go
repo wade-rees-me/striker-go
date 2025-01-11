@@ -1,8 +1,6 @@
 package simulator
 
 import (
-	//"fmt"
-
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
 	"github.com/wade-rees-me/striker-go/cmd/sim/table"
@@ -213,7 +211,6 @@ func (p *Player) payoffSplit(w *cards.Wager, dealerBusted bool, dealerTotal int)
 	}
 	p.Report.TotalWon += w.AmountWon
 	p.Report.TotalBet += w.AmountBet
-	// fmt.Printf("  Payoff.Splits(%d, %d) [%v] %v:%d\n", w.AmountBet, w.AmountWon, w.Hand.Cards, dealerBusted, dealerTotal)
 }
 
 func (p *Player) MimicStand() bool {

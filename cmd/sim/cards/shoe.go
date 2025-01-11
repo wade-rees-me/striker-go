@@ -1,7 +1,6 @@
 package cards
 
 import (
-	//"fmt"
 	"math/rand"
 	"time"
 )
