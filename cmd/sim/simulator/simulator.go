@@ -17,16 +17,16 @@ import (
 )
 
 type Simulator struct {
-	Name       string
-	Simulator  string
-	Playbook   string
-	Year       int
-	Month      int
-	Day        int
-	Parameters *arguments.Parameters
-	Rules	   *table.Rules
-	Report     arguments.Report
-	TableList  []Table
+	Name		string
+	Simulator	string
+	Playbook	string
+	Year		int
+	Month		int
+	Day			int
+	Parameters	*arguments.Parameters
+	Rules		*table.Rules
+	Report		arguments.Report
+	TableList	[]Table
 }
 
 func NewSimulator(parameters *arguments.Parameters, rules *table.Rules, strategy *table.Strategy) *Simulator {
@@ -77,7 +77,7 @@ func (s *Simulator) SimulatorProcess() error {
 	tbs.Payload = "n/a"
 
 	fmt.Printf("\n")
-    fmt.Printf("  -- results ---------------------------------------------------------------------\n");
+	fmt.Printf("  -- results ---------------------------------------------------------------------\n");
 	fmt.Printf("    %-24s: %s\n", "Number of hands", humanize.Comma(s.Report.TotalHands))
 	fmt.Printf("    %-24s: %s\n", "Number of rounds",  humanize.Comma(s.Report.TotalRounds))
 	fmt.Printf("    %-24s: %s, %+04.3f average bet per hand\n", "Total bet", humanize.Comma(s.Report.TotalBet), (float64(s.Report.TotalBet) / float64(s.Report.TotalHands)))
@@ -91,17 +91,17 @@ func (s *Simulator) SimulatorProcess() error {
 	fmt.Printf("    %-24s: %s seconds\n", "Total time", humanize.Comma(int64(s.Report.Duration.Seconds())))
 	fmt.Printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.AverageTime)
 	fmt.Printf("    %-24s: %s\n", "Player advantage", tbs.Advantage) /* House Edge (%)=(Total Loss/Total Bet)×100 */
-    fmt.Printf("  --------------------------------------------------------------------------------\n\n");
+	fmt.Printf("  --------------------------------------------------------------------------------\n\n");
 	fmt.Printf("\n")
 
 	if(s.Report.TotalHands >= constants.DatabaseNumberOfHands) {
-    	fmt.Printf("  -- insert ----------------------------------------------------------------------\n");
+		fmt.Printf("  -- insert ----------------------------------------------------------------------\n");
 		if err := InsertSimulationTable(tbs, tbs.Playbook); err != nil {
 			log.Printf("Failed to insert into Simulation table: %s", err)
 			return err
 		}
-    	fmt.Printf("  --------------------------------------------------------------------------------\n");
-    }
+		fmt.Printf("  --------------------------------------------------------------------------------\n");
+	}
 
 	return nil
 }

@@ -8,14 +8,14 @@ import (
 )
 
 type Player struct {
-	Wager         cards.Wager
-	Splits        [constants.MaxSplitHands]cards.Wager
-	SplitCount    int
-	Rules 		  *table.Rules
-	Strategy 	  *table.Strategy
-	Report        arguments.Report
-	NumberOfCards int
-	SeenCards     *[cards.MAXIMUM_CARD_VALUE + 1]int
+	Wager			cards.Wager
+	Splits			[constants.MaxSplitHands]cards.Wager
+	SplitCount		int
+	Rules 			*table.Rules
+	Strategy		*table.Strategy
+	Report			arguments.Report
+	NumberOfCards	int
+	SeenCards		*[cards.MAXIMUM_CARD_VALUE + 1]int
 }
 
 func NewPlayer(rules *table.Rules, strategy *table.Strategy, numberOfCards int) *Player {
@@ -59,11 +59,11 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 		return
 	}
 
-    if(mimic) {
+	if(mimic) {
 		for !p.MimicStand() {
 			p.Wager.Hand.Draw(s.Draw())
 		}
-        return;
+		return;
 	}
 
 	if p.Strategy.GetDouble(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up) {

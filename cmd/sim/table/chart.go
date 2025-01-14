@@ -19,9 +19,9 @@ type ChartRow struct {
 
 // Chart represents the main chart structure
 type Chart struct {
-	Name    string
-	Rows    [TableSize]ChartRow
-	NextRow int
+	Name	string
+	Rows	[TableSize]ChartRow
+	NextRow	int
 }
 
 // NewChart initializes a new chart with the given name

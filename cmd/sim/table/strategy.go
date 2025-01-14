@@ -14,14 +14,14 @@ import (
 )
 
 type Strategy struct {
-    Playbook       string                       `json:"playbook"`
-    Counts         []int                        `json:"counts"`
-    Insurance      string                       `json:"insurance"`
-    SoftDouble     *Chart
-    HardDouble     *Chart
-    PairSplit      *Chart
-    SoftStand      *Chart
-    HardStand      *Chart
+	Playbook	string	`json:"playbook"`
+	Counts		[]int	`json:"counts"`
+	Insurance	string	`json:"insurance"`
+	SoftDouble	*Chart
+	HardDouble	*Chart
+	PairSplit	*Chart
+	SoftStand	*Chart
+	HardStand	*Chart
 
 	NumberOfCards int
 	JsonResponse []map[string]interface{}
@@ -95,16 +95,16 @@ func (s *Strategy) fetchTable(decks, strategy string) error {
 				log.Fatalf("Error parsing JSON string: %v", err)
 			}
 
-            s.Playbook = result["playbook"].(string)
-            s.Insurance = result["insurance"].(string)
-            s.Counts = parseIntSlice(result["counts"].([]interface{}))
+			s.Playbook = result["playbook"].(string)
+			s.Insurance = result["insurance"].(string)
+			s.Counts = parseIntSlice(result["counts"].([]interface{}))
 			s.Counts = append([]int{0, 0}, s.Counts...)
 
-            parseStringMap(result["soft-double"].(map[string]interface{}), s.SoftDouble)
-            parseStringMap(result["hard-double"].(map[string]interface{}), s.HardDouble)
-            parseStringMap(result["pair-split"].(map[string]interface{}), s.PairSplit)
-            parseStringMap(result["soft-stand"].(map[string]interface{}), s.SoftStand)
-            parseStringMap(result["hard-stand"].(map[string]interface{}), s.HardStand)
+			parseStringMap(result["soft-double"].(map[string]interface{}), s.SoftDouble)
+			parseStringMap(result["hard-double"].(map[string]interface{}), s.HardDouble)
+			parseStringMap(result["pair-split"].(map[string]interface{}), s.PairSplit)
+			parseStringMap(result["soft-stand"].(map[string]interface{}), s.SoftStand)
+			parseStringMap(result["hard-stand"].(map[string]interface{}), s.HardStand)
 
 			return nil
 		}
@@ -117,29 +117,29 @@ func (s *Strategy) GetBet(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) int {
 }
 
 func (s *Strategy) GetInsurance(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) bool {
-    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-    return s.processValue(s.Insurance, trueCount, false)
+	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+	return s.processValue(s.Insurance, trueCount, false)
 }
 
 func (s *Strategy) GetDouble(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, total int, soft bool, up *cards.Card) bool {
-    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-    if (soft) {
-        return s.processValue(s.SoftDouble.GetValueByTotal(total, up.Value), trueCount, false)
-    }
-    return s.processValue(s.HardDouble.GetValueByTotal(total, up.Value), trueCount, false)
+	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+	if (soft) {
+		return s.processValue(s.SoftDouble.GetValueByTotal(total, up.Value), trueCount, false)
+	}
+	return s.processValue(s.HardDouble.GetValueByTotal(total, up.Value), trueCount, false)
 }
 
 func (s *Strategy) GetSplit(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, pair, up *cards.Card) bool {
-    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-    return s.processValue(s.PairSplit.GetValue(pair.Key, up.Value), trueCount, false)
+	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+	return s.processValue(s.PairSplit.GetValue(pair.Key, up.Value), trueCount, false)
 }
 
 func (s *Strategy) GetStand(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, total int, soft bool, up *cards.Card) bool {
-    trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-    if (soft) {
-        return s.processValue(s.SoftStand.GetValueByTotal(total, up.Value), trueCount, false)
-    }
-    return s.processValue(s.HardStand.GetValueByTotal(total, up.Value), trueCount, false)
+	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
+	if (soft) {
+		return s.processValue(s.SoftStand.GetValueByTotal(total, up.Value), trueCount, false)
+	}
+	return s.processValue(s.HardStand.GetValueByTotal(total, up.Value), trueCount, false)
 }
 
 func (s *Strategy) getRunningCount(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) int {

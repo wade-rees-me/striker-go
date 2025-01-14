@@ -12,12 +12,12 @@ const (
 
 // Shoe represents a collection of cards
 type Shoe struct {
-	cards         []*Card
+	cards		  []*Card
 	forceShuffle  bool
 	NumberOfCards int
-	cutCard       int
-	burnCard      int
-	nextCard      int
+	cutCard		  int
+	burnCard	  int
+	nextCard	  int
 	lastDiscard   int
 }
 
@@ -44,13 +44,13 @@ func NewShoe(numberOfDecks int, penetration float64) *Shoe {
 	cutCard := int(float64(numberOfCards) * penetration)
 
 	shoe := &Shoe{
-		cards:         cards,
-		forceShuffle:  false,
-		NumberOfCards: numberOfCards,
-		cutCard:       cutCard,
-		burnCard:      1,
-		nextCard:      numberOfCards,
-		lastDiscard:   numberOfCards,
+		cards:			cards,
+		forceShuffle:	false,
+		NumberOfCards:	numberOfCards,
+		cutCard:		cutCard,
+		burnCard:		1,
+		nextCard:		numberOfCards,
+		lastDiscard:	numberOfCards,
 	}
 
 	rand.Seed(time.Now().UnixNano())

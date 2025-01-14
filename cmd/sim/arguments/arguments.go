@@ -9,17 +9,17 @@ import (
 )
 
 type Arguments struct {
-	MimicFlag       bool
-	BasicFlag       bool
-	NeuralFlag      bool
-	LinearFlag      bool
-	PolynomialFlag  bool
-	HighLowFlag     bool
-	WongFlag        bool
-	SingleDeckFlag  bool
-	DoubleDeckFlag  bool
-	SixShoeFlag     bool
-	NumberOfHands   int64
+	MimicFlag	   bool
+	BasicFlag	   bool
+	NeuralFlag	   bool
+	LinearFlag	   bool
+	PolynomialFlag bool
+	HighLowFlag	   bool
+	WongFlag	   bool
+	SingleDeckFlag bool
+	DoubleDeckFlag bool
+	SixShoeFlag	   bool
+	NumberOfHands  int64
 }
 
 func NewArguments() *Arguments {
