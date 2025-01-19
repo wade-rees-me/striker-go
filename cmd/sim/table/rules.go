@@ -11,16 +11,16 @@ import (
 )
 
 type Rules struct {
-	Playbook            string  `json:"playbook"`
-	HitSoft17           bool    `json:"hitSoft17"`
-	Surrender           bool    `json:"surrender"`
-	DoubleAnyTwoCards   bool    `json:"doubleAnyTwoCards"`
-	DoubleAfterSplit    bool    `json:"doubleAfterSplit"`
-	ResplitAces         bool    `json:"resplitAces"`
-	HitSplitAces        bool    `json:"hitSplitAces"`
-	BlackjackBets       int     `json:"blackjackBets"`
-	BlackjackPays       int     `json:"blackjackPays"`
-	Penetration         float64 `json:"penetration"`
+	Playbook			string  `json:"playbook"`
+	HitSoft17			bool	`json:"hitSoft17"`
+	Surrender			bool	`json:"surrender"`
+	DoubleAnyTwoCards   bool	`json:"doubleAnyTwoCards"`
+	DoubleAfterSplit	bool	`json:"doubleAfterSplit"`
+	ResplitAces			bool	`json:"resplitAces"`
+	HitSplitAces		bool	`json:"hitSplitAces"`
+	BlackjackBets		int		`json:"blackjackBets"`
+	BlackjackPays		int		`json:"blackjackPays"`
+	Penetration			float64	`json:"penetration"`
 }
 
 func NewRules(decks string) *Rules {
