@@ -2,7 +2,6 @@ package simulator
 
 import (
 	"fmt"
-	//"sync"
 	"time"
 	"os"
 
@@ -17,14 +16,14 @@ const STATUS_DOT = 25000;
 const STATUS_LINE = 1000000;
 
 type Table struct {
-	Index      int64
-	Dealer     *cards.Dealer
-	Player     *Player
-	Shoe       cards.Shoe
-	Parameters *arguments.Parameters
-	Report     arguments.Report
-	Up		   *cards.Card
-	Down	   *cards.Card
+	Index		int64
+	Dealer		*cards.Dealer
+	Player		*Player
+	Shoe		cards.Shoe
+	Parameters	*arguments.Parameters
+	Report		arguments.Report
+	Up			*cards.Card
+	Down		*cards.Card
 }
 
 func NewTable(index int64, parameters *arguments.Parameters, rules *table.Rules) *Table {
@@ -45,7 +44,7 @@ func (t *Table) Session(mimic bool) {
 	fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
 	t.Report.Start = time.Now()
 	for t.Report.TotalHands < t.Parameters.NumberOfHands {
-        t.Status(t.Report.TotalRounds, t.Report.TotalHands)
+		t.Status(t.Report.TotalRounds, t.Report.TotalHands)
 		t.Report.TotalRounds++
 		t.Shoe.Shuffle()
 		t.Player.Shuffle()

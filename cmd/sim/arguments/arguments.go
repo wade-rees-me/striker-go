@@ -9,17 +9,17 @@ import (
 )
 
 type Arguments struct {
-	MimicFlag       bool
-	BasicFlag       bool
-	LinearFlag      bool
-	PolynomialFlag  bool
-	HighLowFlag     bool
-	WongFlag        bool
-	StrikerFlag     bool
-	SingleDeckFlag  bool
-	DoubleDeckFlag  bool
-	SixShoeFlag     bool
-	NumberOfHands   int64
+	MimicFlag	   bool
+	BasicFlag	   bool
+	NeuralFlag	   bool
+	LinearFlag	   bool
+	PolynomialFlag bool
+	HighLowFlag	   bool
+	WongFlag	   bool
+	SingleDeckFlag bool
+	DoubleDeckFlag bool
+	SixShoeFlag	   bool
+	NumberOfHands  int64
 }
 
 func NewArguments() *Arguments {
@@ -44,6 +44,8 @@ func NewArguments() *Arguments {
 			arguments.MimicFlag = true
 		case "-B", "--basic":
 			arguments.BasicFlag = true
+		case "-N", "--neural":
+			arguments.NeuralFlag = true
 		case "-L", "--linear":
 			arguments.LinearFlag = true
 		case "-P", "--polynomial":
@@ -52,8 +54,6 @@ func NewArguments() *Arguments {
 			arguments.HighLowFlag = true
 		case "-W", "--wong":
 			arguments.WongFlag = true
-		case "-S", "--striker":
-			arguments.StrikerFlag = true
 		case "-1", "--single-deck":
 			arguments.SingleDeckFlag = true
 		case "-2", "--double-deck":
@@ -86,11 +86,11 @@ Options:
   -h, --number-of-hands <number of hands>  The number of hands to play in this simulation
   -M, --mimic                              Use the mimic dealer player strategy
   -B, --basic                              Use the basic player strategy
+  -N, --neural                             Use the neural player strategy
   -L, --linear                             Use the liner regression player strategy
   -P, --polynomial                         Use the polynomial regression player strategy
   -H, --high-low                           Use the high low count player strategy
   -W, --wong                               Use the Wong count player strategy
-  -S, --striker                            Use the Striker machine learning player strategy
   -1, --single-deck                        Use a single deck of cards and rules
   -2, --double-deck                        Use a double deck of cards and rules
   -6, --six-shoe                           Use a six deck shoe of cards and rules`)
@@ -105,12 +105,12 @@ func (args *Arguments) GetStrategy() string {
 		return "polynomial"
 	case args.LinearFlag:
 		return "linear"
+	case args.NeuralFlag:
+		return "neural"
 	case args.HighLowFlag:
 		return "high-low"
 	case args.WongFlag:
 		return "wong"
-	case args.StrikerFlag:
-		return "striker"
 	default:
 		return "basic"
 	}
