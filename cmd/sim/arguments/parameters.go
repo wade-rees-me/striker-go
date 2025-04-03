@@ -11,26 +11,31 @@ import (
 )
 
 type Parameters struct {
-	Playbook	  string
-	Name		  string
-	Processor	  string
-	Timestamp	  string
-	Decks		  string
-	Strategy	  string
-	NumberOfDecks int
-	NumberOfHands int64
+	Playbook	  	string
+	Name		  	string
+	Processor	  	string
+	Timestamp	  	string
+	Decks		  	string
+	Strategy	  	string
+	NumberOfDecks 	int
+	NumberOfThreads	int64
+	NumberOfHands 	int64
+	NumberOfShares	int64
+	Verbose			bool
 }
 
 // NewParameters is the constructor for Parameters struct
-func NewParameters(decks, strategy string, numDecks int, numberOfHands int64) *Parameters {
+func NewParameters(decks, strategy string, numDecks int, numberOfHands, numberOfThreads int64) *Parameters {
 	params := &Parameters{
-		Decks:		   decks,
-		Strategy:	   strategy,
-		NumberOfDecks: numDecks,
-		NumberOfHands: numberOfHands,
-		Playbook:	   fmt.Sprintf("%s-%s", decks, strategy),
-		Name:		   generateName(),
-		Processor:	   constants.StrikerWhoAmI,
+		Decks:		  	 decks,
+		Strategy:	  	 strategy,
+		NumberOfDecks:	 numDecks,
+		NumberOfHands:	 numberOfHands,
+		NumberOfThreads: numberOfThreads,
+		NumberOfShares:  numberOfHands / numberOfThreads,
+		Playbook:	  	 fmt.Sprintf("%s-%s", decks, strategy),
+		Name:		  	 generateName(),
+		Processor:	  	 constants.StrikerWhoAmI,
 	}
 
 	params.getCurrentTime()
@@ -39,12 +44,16 @@ func NewParameters(decks, strategy string, numDecks int, numberOfHands int64) *P
 
 // Print the parameters
 func (p *Parameters) Print() {
-	fmt.Printf("    %-24s: %s\n", "Name", p.Name)
-	fmt.Printf("    %-24s: %s\n", "Playbook", p.Playbook)
-	fmt.Printf("    %-24s: %s\n", "Processor", p.Processor)
-	fmt.Printf("    %-24s: %s\n", "Version", constants.StrikerVersion)
-	fmt.Printf("    %-24s: %s\n", "Number of hands", humanize.Comma(p.NumberOfHands))
-	fmt.Printf("    %-24s: %s\n", "Timestamp", p.Timestamp)
+	fmt.Printf("    %-26s: %s\n", "Processor", p.Processor)
+	fmt.Printf("    %-26s: %d\n", "Threads", p.NumberOfThreads)
+	fmt.Printf("    %-26s: %s\n", "Name", p.Name)
+	fmt.Printf("    %-26s: %s\n", "Version", constants.StrikerVersion)
+	fmt.Printf("    %-26s: %s\n", "Playbook", p.Playbook)
+	fmt.Printf("    %-26s: %s\n", "Decks", p.Decks)
+	fmt.Printf("    %-26s: %s\n", "Strategy", p.Strategy)
+	fmt.Printf("    %-26s: %17s\n", "Number of hands", humanize.Comma(p.NumberOfHands))
+	fmt.Printf("    %-26s: %17s\n", "Thread's share of hands", humanize.Comma(p.NumberOfShares))
+	fmt.Printf("    %-26s: %s\n", "Timestamp", p.Timestamp)
 }
 
 // Get the current timestamp in the desired format

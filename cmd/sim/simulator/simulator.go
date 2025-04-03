@@ -1,15 +1,16 @@
 package simulator
 
 import (
-	"bytes"
+	//"bytes"
 	"encoding/json"
+	"sync"
 	"fmt"
-	"io"
-	"log"
-	"net/http"
+	//"io"
+	//"log"
+	//"net/http"
 	"time"
 
-	"github.com/dustin/go-humanize"
+	//"github.com/dustin/go-humanize"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/table"
@@ -48,10 +49,17 @@ func NewSimulator(parameters *arguments.Parameters, rules *table.Rules, strategy
 }
 
 //
-func (s *Simulator) SimulatorProcess() error {
-	fmt.Printf("\n  Start: simulation %s\n", s.Name)
+func (s *Simulator) GetReport() *arguments.Report {
+	return &s.Report
+}
+
+//
+func (s *Simulator) SimulatorProcess(id int, wg *sync.WaitGroup) error {
+	defer wg.Done() // Mark this goroutine as done when it finishes
+
+	//fmt.Printf("\n  Start: simulation %s\n", s.Name)
 	s.RunSimulation()
-	fmt.Printf("  End: simulation\n")
+	//fmt.Printf("  End: simulation\n")
 
 	tbs := new(Simulation)
 
@@ -76,6 +84,7 @@ func (s *Simulator) SimulatorProcess() error {
 	tbs.Rules = s.Rules.Serialize()
 	tbs.Payload = "n/a"
 
+/*
 	fmt.Printf("\n")
 	fmt.Printf("  -- results ---------------------------------------------------------------------\n");
 	fmt.Printf("    %-24s: %s\n", "Number of hands", humanize.Comma(s.Report.TotalHands))
@@ -90,10 +99,12 @@ func (s *Simulator) SimulatorProcess() error {
 	fmt.Printf("    %-24s: %s, %+04.3f percent of total hands\n", "Total loses", humanize.Comma(s.Report.TotalLoses), (float64(s.Report.TotalLoses) / float64(s.Report.TotalHands) * 100.0))
 	fmt.Printf("    %-24s: %s seconds\n", "Total time", humanize.Comma(int64(s.Report.Duration.Seconds())))
 	fmt.Printf("    %-24s: %s per 1,000,000 hands\n", "Average time", tbs.AverageTime)
-	fmt.Printf("    %-24s: %s\n", "Player advantage", tbs.Advantage) /* House Edge (%)=(Total Loss/Total Bet)×100 */
+	fmt.Printf("    %-24s: %s\n", "Player advantage", tbs.Advantage) // House Edge (%)=(Total Loss/Total Bet)×100
 	fmt.Printf("  --------------------------------------------------------------------------------\n\n");
 	fmt.Printf("\n")
+*/
 
+/*
 	if(s.Report.TotalHands >= constants.DatabaseNumberOfHands) {
 		fmt.Printf("  -- insert ----------------------------------------------------------------------\n");
 		if err := InsertSimulationTable(tbs, tbs.Playbook); err != nil {
@@ -102,6 +113,7 @@ func (s *Simulator) SimulatorProcess() error {
 		}
 		fmt.Printf("  --------------------------------------------------------------------------------\n");
 	}
+*/
 
 	return nil
 }
@@ -130,9 +142,10 @@ func (s *Simulator) RunSimulation() {
 	}
 }
 
+/*
 //
 func InsertSimulationTable(s *Simulation, playbook string) error {
-	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationUrl, s.Simulator, playbook, s.Guid)
+	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationsUrl, s.Simulator, playbook, s.Guid)
 
 	// Convert data to JSON
 	jsonData, err := json.Marshal(s)
@@ -173,3 +186,4 @@ func InsertSimulationTable(s *Simulation, playbook string) error {
 
 	return nil
 }
+*/

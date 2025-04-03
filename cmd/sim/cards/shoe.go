@@ -19,6 +19,7 @@ type Shoe struct {
 	burnCard	  int
 	nextCard	  int
 	lastDiscard   int
+	Random		  *rand.Rand
 }
 
 // Suits and card names/constants
@@ -51,9 +52,11 @@ func NewShoe(numberOfDecks int, penetration float64) *Shoe {
 		burnCard:		1,
 		nextCard:		numberOfCards,
 		lastDiscard:	numberOfCards,
+		Random: rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano())
+	//r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	shoe.Shuffle()
 	return shoe
 }
@@ -68,7 +71,7 @@ func (s *Shoe) Shuffle() {
 // shuffleRandom shuffles the cards using the Fisher-Yates algorithm
 func (s *Shoe) shuffleRandom() {
 	for i := len(s.cards) - 1; i > 0; i-- {
-		j := rand.Intn(i + 1)
+		j := s.Random.Intn(i + 1)
 		s.cards[i], s.cards[j] = s.cards[j], s.cards[i]
 	}
 	s.nextCard = s.burnCard

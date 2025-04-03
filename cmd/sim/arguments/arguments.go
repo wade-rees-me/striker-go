@@ -9,22 +9,24 @@ import (
 )
 
 type Arguments struct {
-	MimicFlag	   bool
-	BasicFlag	   bool
-	NeuralFlag	   bool
-	LinearFlag	   bool
-	PolynomialFlag bool
-	HighLowFlag	   bool
-	WongFlag	   bool
-	SingleDeckFlag bool
-	DoubleDeckFlag bool
-	SixShoeFlag	   bool
-	NumberOfHands  int64
+	MimicFlag		bool
+	BasicFlag		bool
+	NeuralFlag		bool
+	LinearFlag		bool
+	PolynomialFlag	bool
+	HighLowFlag		bool
+	WongFlag		bool
+	SingleDeckFlag	bool
+	DoubleDeckFlag	bool
+	SixShoeFlag		bool
+	NumberOfHands	int64
+	NumberOfThreads	int64
 }
 
 func NewArguments() *Arguments {
 	arguments := &Arguments{
 		NumberOfHands: constants.DefaultNumberOfHands,
+		NumberOfThreads: constants.NumberOfCoresDefault,
 	}
 
 	argv := os.Args[1:]  // Skip the first element (program name)
@@ -39,6 +41,16 @@ func NewArguments() *Arguments {
 					os.Exit(1)
 				}
 				arguments.NumberOfHands = hands
+			}
+		case "-t", "--number-of-threads":
+			if i+1 < len(argv) {
+				i++
+				threads, err := strconv.ParseInt(argv[i], 10, 64)
+				if err != nil || threads < 1 || threads > constants.MaximumNumberOfHands {
+					fmt.Fprintf(os.Stderr, "Number of threads must be between 1 and %d\n", constants.NumberOfCoresLogical)
+					os.Exit(1)
+				}
+				arguments.NumberOfThreads = threads
 			}
 		case "-M", "--mimic":
 			arguments.MimicFlag = true
@@ -81,19 +93,20 @@ func (args *Arguments) PrintVersion() {
 func (args *Arguments) PrintHelpMessage() {
 	fmt.Println(`Usage: strikerGO [options]
 Options:
-  --help                                   Show this help message
-  --version                                Display the program version
-  -h, --number-of-hands <number of hands>  The number of hands to play in this simulation
-  -M, --mimic                              Use the mimic dealer player strategy
-  -B, --basic                              Use the basic player strategy
-  -N, --neural                             Use the neural player strategy
-  -L, --linear                             Use the liner regression player strategy
-  -P, --polynomial                         Use the polynomial regression player strategy
-  -H, --high-low                           Use the high low count player strategy
-  -W, --wong                               Use the Wong count player strategy
-  -1, --single-deck                        Use a single deck of cards and rules
-  -2, --double-deck                        Use a double deck of cards and rules
-  -6, --six-shoe                           Use a six deck shoe of cards and rules`)
+  --help                                       Show this help message
+  --version                                    Display the program version
+  -h, --number-of-hands <number of hands>      The number of hands to play in this simulation
+  -t, --number-of-threads <number of threads>  The number of threads to use in this simulation
+  -M, --mimic                                  Use the mimic dealer player strategy
+  -B, --basic                                  Use the basic player strategy
+  -N, --neural                                 Use the neural player strategy
+  -L, --linear                                 Use the liner regression player strategy
+  -P, --polynomial                             Use the polynomial regression player strategy
+  -H, --high-low                               Use the high low count player strategy
+  -W, --wong                                   Use the Wong count player strategy
+  -1, --single-deck                            Use a single deck of cards and rules
+  -2, --double-deck                            Use a double deck of cards and rules
+  -6, --six-shoe                               Use a six deck shoe of cards and rules`)
 }
 
 // Get current strategy as a string

@@ -40,11 +40,15 @@ func (t *Table) AddPlayer(player *Player) {
 }
 
 func (t *Table) Session(mimic bool) {
-	fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy);
-	fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
+	if false {
+		fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy);
+		fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
+	}
 	t.Report.Start = time.Now()
-	for t.Report.TotalHands < t.Parameters.NumberOfHands {
-		t.Status(t.Report.TotalRounds, t.Report.TotalHands)
+	for t.Report.TotalHands < t.Parameters.NumberOfShares {
+		if false {
+			t.Status(t.Report.TotalRounds, t.Report.TotalHands)
+		}
 		t.Report.TotalRounds++
 		t.Shoe.Shuffle()
 		t.Player.Shuffle()
@@ -77,8 +81,10 @@ func (t *Table) Session(mimic bool) {
 
 	t.Report.End = time.Now()
 	t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
-	fmt.Printf("\n      End: table\n")
-	fmt.Printf("    End: table session\n");
+	if false {
+		fmt.Printf("\n      End: table\n")
+		fmt.Printf("    End: table session\n");
+	}
 }
 
 func (t *Table) dealCards() {

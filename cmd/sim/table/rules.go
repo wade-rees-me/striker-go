@@ -11,6 +11,7 @@ import (
 )
 
 type Rules struct {
+	Id					string  `json:"_id"`
 	Playbook			string  `json:"playbook"`
 	HitSoft17			bool	`json:"hitSoft17"`
 	Surrender			bool	`json:"surrender"`
@@ -47,21 +48,16 @@ func (r *Rules) fetchTable(url string) error {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
+	bodyString := string(body)
+	bodyString = constants.UnescapeJSON(bodyString)
+	bodyString = constants.StripQuotes(bodyString)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	// Parse JSON
-	var result struct {
-		Payload string `json:"payload"`
-	}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return fmt.Errorf("error parsing payload: %w", err)
-	}
-
-	// Parse rules from the payload
-	if err := json.Unmarshal([]byte(result.Payload), r); err != nil {
-		return fmt.Errorf("error parsing rules: %w", err)
+	if err := json.Unmarshal([]byte(bodyString), &r); err != nil {
+		return fmt.Errorf("error parsing json string: %w", err)
 	}
 
 	return nil
