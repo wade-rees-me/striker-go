@@ -1,41 +1,41 @@
 package arguments
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
-	"encoding/json"
 
 	"github.com/dustin/go-humanize"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 )
 
 type Parameters struct {
-	Playbook	  	string
-	Name		  	string
-	Processor	  	string
-	Timestamp	  	string
-	Decks		  	string
-	Strategy	  	string
-	NumberOfDecks 	int
-	NumberOfThreads	int64
-	NumberOfHands 	int64
-	NumberOfShares	int64
-	Verbose			bool
+	Playbook        string
+	Name            string
+	Processor       string
+	Epoch           string
+	Decks           string
+	Strategy        string
+	NumberOfDecks   int
+	NumberOfThreads int64
+	NumberOfHands   int64
+	NumberOfShares  int64
+	Verbose         bool
 }
 
-// NewParameters is the constructor for Parameters struct
+// constructor for Parameters
 func NewParameters(decks, strategy string, numDecks int, numberOfHands, numberOfThreads int64) *Parameters {
 	params := &Parameters{
-		Decks:		  	 decks,
-		Strategy:	  	 strategy,
-		NumberOfDecks:	 numDecks,
-		NumberOfHands:	 numberOfHands,
+		Decks:           decks,
+		Strategy:        strategy,
+		NumberOfDecks:   numDecks,
+		NumberOfHands:   numberOfHands,
 		NumberOfThreads: numberOfThreads,
-		NumberOfShares:  numberOfHands / numberOfThreads,
-		Playbook:	  	 fmt.Sprintf("%s-%s", decks, strategy),
-		Name:		  	 generateName(),
-		Processor:	  	 constants.StrikerWhoAmI,
+		NumberOfShares:  (numberOfHands / numberOfThreads) + 1,
+		Playbook:        fmt.Sprintf("%s-%s", decks, strategy),
+		Name:            generateName(),
+		Processor:       constants.StrikerWhoAmI,
 	}
 
 	params.getCurrentTime()
@@ -53,25 +53,25 @@ func (p *Parameters) Print() {
 	fmt.Printf("    %-26s: %s\n", "Strategy", p.Strategy)
 	fmt.Printf("    %-26s: %17s\n", "Number of hands", humanize.Comma(p.NumberOfHands))
 	fmt.Printf("    %-26s: %17s\n", "Thread's share of hands", humanize.Comma(p.NumberOfShares))
-	fmt.Printf("    %-26s: %s\n", "Timestamp", p.Timestamp)
+	fmt.Printf("    %-26s: %s\n", "Epoch", p.Epoch)
 }
 
-// Get the current timestamp in the desired format
+// Get the current epoch in the desired format
 func (p *Parameters) getCurrentTime() {
-	p.Timestamp = time.Now().Format(constants.TimeLayout)
+	p.Epoch = time.Now().Format(constants.TimeLayout)
 }
 
 // Serialize parameters to JSON
 func (p *Parameters) Serialize() string {
 	data := map[string]interface{}{
-		"playbook":			p.Playbook,
-		"name":				p.Name,
-		"processor":		p.Processor,
-		"timestamp":		p.Timestamp,
-		"decks":			p.Decks,
-		"strategy":			p.Strategy,
-		"rounds":			p.NumberOfHands,
-		"number_of_decks":	p.NumberOfDecks,
+		"playbook":        p.Playbook,
+		"name":            p.Name,
+		"processor":       p.Processor,
+		"epoch":           p.Epoch,
+		"decks":           p.Decks,
+		"strategy":        p.Strategy,
+		"rounds":          p.NumberOfHands,
+		"number_of_decks": p.NumberOfDecks,
 	}
 
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")
@@ -82,7 +82,6 @@ func (p *Parameters) Serialize() string {
 	return string(jsonBytes)
 }
 
-//
 func generateName() string {
 	t := time.Now()
 
@@ -94,4 +93,3 @@ func generateName() string {
 	name := fmt.Sprintf("%s_%04d_%02d_%02d_%012d", constants.StrikerWhoAmI, year, month, day, unixTime)
 	return name
 }
-

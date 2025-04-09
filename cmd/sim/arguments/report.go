@@ -1,36 +1,73 @@
 package arguments
 
 import (
-	"fmt"
-	"time"
 	"bytes"
 	"encoding/json"
-	//"sync"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 )
 
 type Report struct {
-	TotalRounds 	int64
-	TotalHands  	int64
-	TotalBet		int64
-	TotalWon		int64
- 	TotalBlackjacks	int64
-	TotalDoubles	int64
-	TotalSplits		int64
-	TotalWins		int64
-	TotalLoses		int64
-	TotalPushes		int64
-	TotalThreads	int64
-	Advantage		float64
-	Start			time.Time
-	End				time.Time
-	Duration		time.Duration
+	Name            string  `json:"guid"`
+	Version         string  `json:"version"`
+	Playbook        string  `json:"playbook"`
+	Simulator       string  `json:"simulator"`
+	Strategy        string  `json:"strategy"`
+	Decks           string  `json:"decks"`
+	Epoch           string  `json:"epoch"`
+	TotalRounds     int64   `json:"rounds"`
+	TotalHands      int64   `json:"hands"`
+	TotalBet        int64   `json:"total_bet"`
+	TotalWon        int64   `json:"total_won"`
+	TotalBlackjacks int64   `json:"total_blackjacks"`
+	TotalDoubles    int64   `json:"total_doubles"`
+	TotalSplits     int64   `json:"total_splits"`
+	TotalWins       int64   `json:"total_wins"`
+	TotalLoses      int64   `json:"total_loses"`
+	TotalPushes     int64   `json:"total_pushes"`
+	TotalThreads    int64   `json:"threads"`
+	Start           int64   `json:"start"`
+	End             int64   `json:"end"`
+	Duration        int64   `json:"duration"`
+	Advantage       float64 `json:"advantage"`
+	PerBillion      float64 `json:"per_billion"`
+}
+
+func (r *Report) InitFinal(parameters *Parameters, start time.Time) {
+	r.Init()
+	r.Name = parameters.Name
+	r.Version = constants.StrikerVersion
+	r.Playbook = parameters.Playbook
+	r.Simulator = parameters.Processor
+	r.Strategy = parameters.Strategy
+	r.Decks = parameters.Decks
+	r.TotalThreads = parameters.NumberOfThreads
+	r.Epoch = parameters.Epoch
+	r.Start = start.Unix()
+	r.End = int64(0)
+	r.Duration = int64(0)
+	r.Advantage = float64(0.0)
+	r.PerBillion = float64(0.0)
+}
+
+func (r *Report) Init() {
+	r.TotalRounds = int64(0)
+	r.TotalHands = int64(0)
+	r.TotalBet = int64(0)
+	r.TotalWon = int64(0)
+	r.TotalBlackjacks = int64(0)
+	r.TotalDoubles = int64(0)
+	r.TotalSplits = int64(0)
+	r.TotalWins = int64(0)
+	r.TotalLoses = int64(0)
+	r.TotalPushes = int64(0)
 }
 
 func (r *Report) Merge(b *Report) {
@@ -46,14 +83,23 @@ func (r *Report) Merge(b *Report) {
 	r.TotalPushes += b.TotalPushes
 }
 
-func (report *Report) Print(numberOfThreads int64) {
-	report.TotalThreads = numberOfThreads
-    report.Advantage = float64(report.TotalWon) / float64(report.TotalBet) * float64(100)
+func (r *Report) Finish(end time.Time) {
+	r.End = end.Unix()
 
+	r.Duration = r.End - r.Start
+	if r.TotalBet > 0 {
+		r.Advantage = float64(r.TotalWon) / float64(r.TotalBet) * 100.0
+	}
+	if r.TotalHands > 0 {
+		r.PerBillion = (float64(r.Duration) / float64(r.TotalHands)) * float64(constants.Billion)
+	}
+}
+
+func (report *Report) Print(numberOfThreads int64) {
 	fmt.Printf("\n")
 	fmt.Printf("  -- results ---------------------------------------------------------------------\n")
 	fmt.Printf("    %-26s: %17s\n", "Number of hands", humanize.Comma(report.TotalHands))
-	fmt.Printf("    %-26s: %17s\n", "Number of rounds",  humanize.Comma(report.TotalRounds))
+	fmt.Printf("    %-26s: %17s\n", "Number of rounds", humanize.Comma(report.TotalRounds))
 	fmt.Printf("    %-26s: %17s %+08.3f average bet per hand\n", "Total bet", humanize.Comma(report.TotalBet), (float64(report.TotalBet) / float64(report.TotalHands)))
 	fmt.Printf("    %-26s: %17s %+08.3f average win per hand\n", "Total won", humanize.Comma(report.TotalWon), (float64(report.TotalWon) / float64(report.TotalHands)))
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total blackjacks", humanize.Comma(report.TotalBlackjacks), (float64(report.TotalBlackjacks) / float64(report.TotalHands) * 100.0))
@@ -62,15 +108,14 @@ func (report *Report) Print(numberOfThreads int64) {
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total wins", humanize.Comma(report.TotalWins), (float64(report.TotalWins) / float64(report.TotalHands) * 100.0))
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total pushes", humanize.Comma(report.TotalPushes), (float64(report.TotalPushes) / float64(report.TotalHands) * 100.0))
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total loses", humanize.Comma(report.TotalLoses), (float64(report.TotalLoses) / float64(report.TotalHands) * 100.0))
-	fmt.Printf("    %-26s: %17s seconds\n", "Total time", humanize.Comma(int64(report.Duration.Seconds())))
+	fmt.Printf("    %-26s: %17s seconds\n", "Total time", humanize.Comma(int64(report.Duration)))
 	fmt.Printf("    %-26s: %17s threads\n", "Number of threads", humanize.Comma(int64(report.TotalThreads)))
-	fmt.Printf("    %-26s: %17s %s\n", "Average time", humanize.Comma(int64(float64(report.Duration.Seconds()) * float64(1000000000) / float64(report.TotalHands))), "seconds per 1,000,000,000 hands")
+	fmt.Printf("    %-26s: %17s %s\n", "Average time", humanize.Comma(int64(float64(report.Duration)*float64(1000000000)/float64(report.TotalHands))), "seconds per 1,000,000,000 hands")
 	fmt.Printf("    %-26s: %17s %+08.3f %%\n", "Player advantage", "", report.Advantage) // House Edge (%)=(Total Loss/Total Bet)×100
 	fmt.Printf("  --------------------------------------------------------------------------------\n\n")
 	fmt.Printf("\n")
 }
 
-//
 func (r *Report) Insert(p *Parameters, l *table.Rules) error {
 	url := fmt.Sprintf("http://%s/%s/%s/%s", constants.SimulationsUrl, p.Processor, p.Playbook, p.Name)
 
@@ -80,7 +125,6 @@ func (r *Report) Insert(p *Parameters, l *table.Rules) error {
 		fmt.Println("Error marshalling JSON:", err)
 		return nil
 	}
-	//log.Printf("Insert Simulation: %v\n", string(jsonData))
 
 	// Create a new POST request with JSON data
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
@@ -92,7 +136,7 @@ func (r *Report) Insert(p *Parameters, l *table.Rules) error {
 	// Set the Content-Type header to application/json
 	req.Header.Set("Content-Type", "application/json")
 
-	// Send the request using http.DefaultClient
+	// Send the request using http.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Println("Error sending request:", err)

@@ -14,18 +14,18 @@ import (
 )
 
 type Strategy struct {
-	Id			string  `json:"_id"`
-	Playbook	string	`json:"playbook"`
-	Counts		[]int	`json:"counts"`
-	Insurance	string	`json:"insurance"`
-	SoftDouble	*Chart
-	HardDouble	*Chart
-	PairSplit	*Chart
-	SoftStand	*Chart
-	HardStand	*Chart
+	Id         string `json:"_id"`
+	Playbook   string `json:"playbook"`
+	Counts     []int  `json:"counts"`
+	Insurance  string `json:"insurance"`
+	SoftDouble *Chart
+	HardDouble *Chart
+	PairSplit  *Chart
+	SoftStand  *Chart
+	HardStand  *Chart
 
 	NumberOfCards int
-	JsonResponse map[string]interface{}
+	JsonResponse  map[string]interface{}
 }
 
 func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
@@ -52,14 +52,13 @@ func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
 			s.PairSplit.Print()
 			s.SoftStand.Print()
 			s.HardStand.Print()
-			s.PrintCounts();
+			s.PrintCounts()
 		}
 	}
 	return s
 }
 
 func (s *Strategy) fetchJson(url string) error {
-	//fmt.Printf("url: %s\n", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
@@ -83,7 +82,7 @@ func (s *Strategy) fetchTable(decks, strategy string) {
 	if playbook, ok := s.JsonResponse["playbook"].(string); ok {
 		s.Playbook = playbook
 	}
-		
+
 	s.Insurance = s.JsonResponse["insurance"].(string)
 	s.Counts = parseIntSlice(s.JsonResponse["counts"].([]interface{}))
 	s.Counts = append([]int{0, 0}, s.Counts...)
@@ -106,7 +105,7 @@ func (s *Strategy) GetInsurance(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int) bo
 
 func (s *Strategy) GetDouble(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, total int, soft bool, up *cards.Card) bool {
 	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-	if (soft) {
+	if soft {
 		return s.processValue(s.SoftDouble.GetValueByTotal(total, up.Value), trueCount, false)
 	}
 	return s.processValue(s.HardDouble.GetValueByTotal(total, up.Value), trueCount, false)
@@ -119,7 +118,7 @@ func (s *Strategy) GetSplit(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, pair, 
 
 func (s *Strategy) GetStand(seenCards *[cards.MAXIMUM_CARD_VALUE + 1]int, total int, soft bool, up *cards.Card) bool {
 	trueCount := s.getTrueCount(seenCards, s.getRunningCount(seenCards))
-	if (soft) {
+	if soft {
 		return s.processValue(s.SoftStand.GetValueByTotal(total, up.Value), trueCount, false)
 	}
 	return s.processValue(s.HardStand.GetValueByTotal(total, up.Value), trueCount, false)
@@ -195,4 +194,3 @@ func (s *Strategy) PrintCounts() {
 	fmt.Println()
 	fmt.Println("------------------------------------------------------------------------------")
 }
-

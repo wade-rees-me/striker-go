@@ -8,26 +8,28 @@ import (
 // General constants
 const (
 	StrikerVersion = "v3.00.00"
-	TimeLayout = "2006-01-02 15:04:05 -0700"
+	TimeLayout     = "2006-01-02 15:04:05 -0700"
 )
 
 // Simulation constants
 const (
-	MaximumNumberOfHands	= int64(25000000000)
-	MinimumNumberOfHands	= int64(100)
-	DefaultNumberOfHands	= int64(250000000)
-	DatabaseNumberOfHands	= int64(250000000)
-	MaxSplitHands			= 18
-	StrikerWhoAmI			= "striker-go"
+	Million               = int64(1000000)
+	Billion               = int64(Million * 1000)
+	MaximumNumberOfHands  = int64(Billion * 10)
+	MinimumNumberOfHands  = int64(1000)
+	DefaultNumberOfHands  = int64(Million * 500)
+	DatabaseNumberOfHands = int64(Million * 500)
+	MaxSplitHands         = 18
+	StrikerWhoAmI         = "striker-go"
 
-	NumberOfCardsInDeck = 52
+	NumberOfCardsInDeck   = 52
 	NumberOfCoresPhysical = 24
-	NumberOfCoresLogical = 32
-	NumberOfCoresDefault = 16
+	NumberOfCoresLogical  = 32
+	NumberOfCoresDefault  = 16
 
-	MinimumBet = 2
-	MaximumBet = 98
-	TrueCountBet = 2
+	MinimumBet          = 2
+	MaximumBet          = 98
+	TrueCountBet        = 2
 	TrueCounTMultiplier = 26
 )
 
@@ -35,7 +37,7 @@ var RulesUrl = os.Getenv("STRIKER_URL_RULES")
 var ChartsUrl = os.Getenv("STRIKER_URL_CHARTS")
 var SimulationsUrl = os.Getenv("STRIKER_URL_SIMULATIONS")
 
-// unescapeJSON removes escape sequences like \n, \" and \\
+// removes escape sequences like \n, \" and \\
 func UnescapeJSON(str string) string {
 	var result strings.Builder
 	i := 0
@@ -66,11 +68,10 @@ func UnescapeJSON(str string) string {
 	return result.String()
 }
 
-// stripQuotes removes the leading and trailing quotes from the string if they exist
+// removes the leading and trailing quotes from the string if they exist
 func StripQuotes(str string) string {
 	if len(str) > 1 && str[0] == '"' && str[len(str)-1] == '"' {
 		return str[1 : len(str)-1] // Remove first and last quote
 	}
 	return str
 }
-

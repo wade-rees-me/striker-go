@@ -2,8 +2,8 @@ package table
 
 import (
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
 )
@@ -11,7 +11,7 @@ import (
 // Define the size of the table
 const TableSize = 21
 
-// ChartRow represents a single row in the chart
+// represents a single row in the chart
 type ChartRow struct {
 	Key   string
 	Value [cards.MAXIMUM_CARD_VALUE + 1]string
@@ -19,12 +19,12 @@ type ChartRow struct {
 
 // Chart represents the main chart structure
 type Chart struct {
-	Name	string
-	Rows	[TableSize]ChartRow
-	NextRow	int
+	Name    string
+	Rows    [TableSize]ChartRow
+	NextRow int
 }
 
-// NewChart initializes a new chart with the given name
+// initializes a new chart with the given name
 func NewChart(name string) *Chart {
 	chart := &Chart{Name: name}
 	for i := range chart.Rows {
@@ -36,7 +36,6 @@ func NewChart(name string) *Chart {
 	return chart
 }
 
-//
 func (c *Chart) GetRowCount() int {
 	return c.NextRow
 }
@@ -49,10 +48,10 @@ func (c *Chart) Insert(key string, up int, value string) {
 		c.NextRow++
 		c.Rows[index].Key = strings.ToUpper(key)
 	}
-	c.Rows[index].Value[cards.MINIMUM_CARD_VALUE + up] = strings.ToUpper(value)
+	c.Rows[index].Value[cards.MINIMUM_CARD_VALUE+up] = strings.ToUpper(value)
 }
 
-// GetValue retrieves a value from the chart
+// retrieves a value from the chart
 func (c *Chart) GetValue(key string, up int) string {
 	index := c.getRow(key)
 	if index < 0 {
@@ -62,9 +61,8 @@ func (c *Chart) GetValue(key string, up int) string {
 	return c.Rows[index].Value[up]
 }
 
-//
 func (c *Chart) GetValueByTotal(total, up int) string {
-	return c.GetValue(strconv.Itoa(total), up);
+	return c.GetValue(strconv.Itoa(total), up)
 }
 
 // Print prints the entire chart to the console
@@ -82,7 +80,7 @@ func (c *Chart) Print() {
 	fmt.Println("------------------------------------------------------------------------------")
 }
 
-// getRow finds the index of the row for the given key
+// finds the index of the row for the given key
 func (c *Chart) getRow(key string) int {
 	keyUpper := strings.ToUpper(key)
 	for i := 0; i < c.NextRow; i++ {
@@ -92,4 +90,3 @@ func (c *Chart) getRow(key string) int {
 	}
 	return -1
 }
-

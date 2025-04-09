@@ -9,27 +9,27 @@ import (
 )
 
 type Arguments struct {
-	MimicFlag		bool
-	BasicFlag		bool
-	NeuralFlag		bool
-	LinearFlag		bool
-	PolynomialFlag	bool
-	HighLowFlag		bool
-	WongFlag		bool
-	SingleDeckFlag	bool
-	DoubleDeckFlag	bool
-	SixShoeFlag		bool
-	NumberOfHands	int64
-	NumberOfThreads	int64
+	MimicFlag       bool
+	BasicFlag       bool
+	NeuralFlag      bool
+	LinearFlag      bool
+	PolynomialFlag  bool
+	HighLowFlag     bool
+	WongFlag        bool
+	SingleDeckFlag  bool
+	DoubleDeckFlag  bool
+	SixShoeFlag     bool
+	NumberOfHands   int64
+	NumberOfThreads int64
 }
 
 func NewArguments() *Arguments {
 	arguments := &Arguments{
-		NumberOfHands: constants.DefaultNumberOfHands,
+		NumberOfHands:   constants.DefaultNumberOfHands,
 		NumberOfThreads: constants.NumberOfCoresDefault,
 	}
 
-	argv := os.Args[1:]  // Skip the first element (program name)
+	argv := os.Args[1:] // Skip the first element (program name)
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
 		case "-h", "--number-of-hands":
@@ -152,4 +152,3 @@ func (args *Arguments) GetNumberOfDecks() int {
 		return 1
 	}
 }
-

@@ -2,28 +2,27 @@ package simulator
 
 import (
 	"fmt"
-	"time"
 	"os"
 
 	"github.com/dustin/go-humanize"
 
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
-	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 )
 
-const STATUS_DOT = 25000;
-const STATUS_LINE = 1000000;
+const STATUS_DOT = 25000
+const STATUS_LINE = 1000000
 
 type Table struct {
-	Index		int64
-	Dealer		*cards.Dealer
-	Player		*Player
-	Shoe		cards.Shoe
-	Parameters	*arguments.Parameters
-	Report		arguments.Report
-	Up			*cards.Card
-	Down		*cards.Card
+	Index      int64
+	Dealer     *cards.Dealer
+	Player     *Player
+	Shoe       cards.Shoe
+	Parameters *arguments.Parameters
+	Report     arguments.Report
+	Up         *cards.Card
+	Down       *cards.Card
 }
 
 func NewTable(index int64, parameters *arguments.Parameters, rules *table.Rules) *Table {
@@ -41,10 +40,10 @@ func (t *Table) AddPlayer(player *Player) {
 
 func (t *Table) Session(mimic bool) {
 	if false {
-		fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy);
+		fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy)
 		fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
 	}
-	t.Report.Start = time.Now()
+	//t.Report.Start = time.Now()
 	for t.Report.TotalHands < t.Parameters.NumberOfShares {
 		if false {
 			t.Status(t.Report.TotalRounds, t.Report.TotalHands)
@@ -79,11 +78,11 @@ func (t *Table) Session(mimic bool) {
 		}
 	}
 
-	t.Report.End = time.Now()
-	t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
+	//t.Report.End = time.Now()
+	//t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
 	if false {
 		fmt.Printf("\n      End: table\n")
-		fmt.Printf("    End: table session\n");
+		fmt.Printf("    End: table session\n")
 	}
 }
 
