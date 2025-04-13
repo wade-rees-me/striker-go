@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"sync"
 	"time"
@@ -16,9 +15,9 @@ import (
 func main() {
 	var wg sync.WaitGroup
 	args := arguments.NewArguments()
-	params := arguments.NewParameters(args.GetDecks(), args.GetStrategy(), args.GetNumberOfDecks(), args.NumberOfHands, args.NumberOfThreads)
+	params := arguments.NewParameters(args)
 	rules := table.NewRules(args.GetDecks())
-	strategy := table.NewStrategy(args.GetDecks(), args.GetStrategy(), args.GetNumberOfDecks()*52)
+	strategy := table.NewStrategy(args.GetDecks(), args.GetStrategy(), args.GetNumberOfDecks())
 	simulators := make([]*simulator.Simulator, constants.NumberOfCoresLogical)
 	finalReport := new(arguments.Report)
 
@@ -29,7 +28,6 @@ func main() {
 	params.Print()
 	rules.Print()
 	fmt.Printf("  --------------------------------------------------------------------------------\n")
-	fmt.Printf("  Start: simulation(%s) on %d cores\n", params.Name, args.NumberOfThreads)
 
 	finalReport.InitFinal(params, time.Now())
 	for i := 1; i <= int(args.NumberOfThreads); i++ {
@@ -40,21 +38,16 @@ func main() {
 	}
 
 	wg.Wait() // Wait for all workers to finish
-	fmt.Printf("  End: simulation(%s) on %d cores\n", params.Name, args.NumberOfThreads)
-	fmt.Printf("End: %s\n", constants.StrikerWhoAmI)
-
 	for i := 1; i <= int(args.NumberOfThreads); i++ {
 		sim := simulators[i-1]
 		finalReport.Merge(sim.GetReport())
 	}
-	finalReport.Finish(time.Now())
 
+	finalReport.Finish(time.Now())
+	fmt.Printf("  -- results ---------------------------------------------------------------------\n")
 	finalReport.Print(args.NumberOfThreads)
-	if finalReport.TotalHands >= constants.DatabaseNumberOfHands {
-		fmt.Printf("  -- insert ----------------------------------------------------------------------\n")
-		if err := finalReport.Insert(params, rules); err != nil {
-			log.Printf("Failed to insert into Simulation table: %s", err)
-		}
-		fmt.Printf("  --------------------------------------------------------------------------------\n")
-	}
+	fmt.Printf("  --------------------------------------------------------------------------------\n")
+	fmt.Printf("  -- insert ----------------------------------------------------------------------\n")
+	finalReport.Insert(params, rules)
+	fmt.Printf("  --------------------------------------------------------------------------------\n")
 }

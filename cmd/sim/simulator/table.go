@@ -4,15 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dustin/go-humanize"
-
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
 	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 )
-
-const STATUS_DOT = 25000
-const STATUS_LINE = 1000000
 
 type Table struct {
 	Index      int64
@@ -39,13 +34,8 @@ func (t *Table) AddPlayer(player *Player) {
 }
 
 func (t *Table) Session(mimic bool) {
-	if false {
-		fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy)
-		fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
-	}
-	//t.Report.Start = time.Now()
 	for t.Report.TotalHands < t.Parameters.NumberOfShares {
-		if false {
+		if t.Parameters.NumberOfThreads == 1 {
 			t.Status(t.Report.TotalRounds, t.Report.TotalHands)
 		}
 		t.Report.TotalRounds++
@@ -78,11 +68,8 @@ func (t *Table) Session(mimic bool) {
 		}
 	}
 
-	//t.Report.End = time.Now()
-	//t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
-	if false {
-		fmt.Printf("\n      End: table\n")
-		fmt.Printf("    End: table session\n")
+	if t.Parameters.NumberOfThreads == 1 {
+		fmt.Printf("\r")
 	}
 }
 
@@ -98,15 +85,8 @@ func (t *Table) dealCards() {
 }
 
 func (t *Table) Status(round int64, hand int64) {
-	if round == 0 {
-		fmt.Printf("        ")
-	}
-	if (round+1)%STATUS_DOT == 0 {
-		fmt.Printf(".")
-	}
-	if (round+1)%STATUS_LINE == 0 {
-		fmt.Printf(" : %s (rounds), %s (hands)\n", humanize.Comma(round+1), humanize.Comma(hand))
-		fmt.Printf("        ")
-	}
+	spinner := []rune{'|', '/', '-', '\\'}
+
+	fmt.Printf("\r%c Simulating...", spinner[round%int64(len(spinner))])
 	os.Stdout.Sync()
 }

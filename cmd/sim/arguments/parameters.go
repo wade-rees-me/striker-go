@@ -1,9 +1,7 @@
 package arguments
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -25,19 +23,18 @@ type Parameters struct {
 }
 
 // constructor for Parameters
-func NewParameters(decks, strategy string, numDecks int, numberOfHands, numberOfThreads int64) *Parameters {
+func NewParameters(arguments *Arguments) *Parameters {
 	params := &Parameters{
-		Decks:           decks,
-		Strategy:        strategy,
-		NumberOfDecks:   numDecks,
-		NumberOfHands:   numberOfHands,
-		NumberOfThreads: numberOfThreads,
-		NumberOfShares:  (numberOfHands / numberOfThreads) + 1,
-		Playbook:        fmt.Sprintf("%s-%s", decks, strategy),
+		Decks:           arguments.GetDecks(),
+		Strategy:        arguments.GetStrategy(),
+		NumberOfDecks:   arguments.GetNumberOfDecks(),
+		NumberOfHands:   arguments.NumberOfHands,
+		NumberOfThreads: arguments.NumberOfThreads,
+		NumberOfShares:  (arguments.NumberOfHands / arguments.NumberOfThreads) + 1,
+		Playbook:        fmt.Sprintf("%s-%s", arguments.GetDecks(), arguments.GetStrategy()),
 		Name:            generateName(),
 		Processor:       constants.StrikerWhoAmI,
 	}
-
 	params.getCurrentTime()
 	return params
 }
@@ -59,27 +56,6 @@ func (p *Parameters) Print() {
 // Get the current epoch in the desired format
 func (p *Parameters) getCurrentTime() {
 	p.Epoch = time.Now().Format(constants.TimeLayout)
-}
-
-// Serialize parameters to JSON
-func (p *Parameters) Serialize() string {
-	data := map[string]interface{}{
-		"playbook":        p.Playbook,
-		"name":            p.Name,
-		"processor":       p.Processor,
-		"epoch":           p.Epoch,
-		"decks":           p.Decks,
-		"strategy":        p.Strategy,
-		"rounds":          p.NumberOfHands,
-		"number_of_decks": p.NumberOfDecks,
-	}
-
-	jsonBytes, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Fatalf("Failed to serialize parameters: %v", err)
-	}
-
-	return string(jsonBytes)
 }
 
 func generateName() string {

@@ -37,7 +37,8 @@ func NewArguments() *Arguments {
 				i++
 				hands, err := strconv.ParseInt(argv[i], 10, 64)
 				if err != nil || hands < constants.MinimumNumberOfHands || hands > constants.MaximumNumberOfHands {
-					fmt.Fprintf(os.Stderr, "Number of hands must be between %d and %d\n", constants.MinimumNumberOfHands, constants.MaximumNumberOfHands)
+					fmt.Fprintf(os.Stderr, "Number of hands must be between %d and %d\n",
+						constants.MinimumNumberOfHands, constants.MaximumNumberOfHands)
 					os.Exit(1)
 				}
 				arguments.NumberOfHands = hands

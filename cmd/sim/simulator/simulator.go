@@ -47,14 +47,6 @@ func (s *Simulator) GetReport() *arguments.Report {
 func (s *Simulator) SimulatorProcess(id int, wg *sync.WaitGroup) error {
 	defer wg.Done() // Mark this goroutine as done when it finishes
 
-	//fmt.Printf("\n  Start: simulation %s\n", s.Name)
-	s.RunSimulation()
-	//fmt.Printf("  End: simulation\n")
-
-	return nil
-}
-
-func (s *Simulator) RunSimulation() {
 	for i := range s.TableList {
 		t := &s.TableList[i]
 		t.Session("mimic" == s.Parameters.Strategy)
@@ -66,14 +58,7 @@ func (s *Simulator) RunSimulation() {
 
 		s.Report.TotalRounds += t.Report.TotalRounds
 		s.Report.TotalHands += t.Report.TotalHands
-		s.Report.TotalBlackjacks += t.Player.Report.TotalBlackjacks
-		s.Report.TotalDoubles += t.Player.Report.TotalDoubles
-		s.Report.TotalSplits += t.Player.Report.TotalSplits
-		s.Report.TotalWins += t.Player.Report.TotalWins
-		s.Report.TotalPushes += t.Player.Report.TotalPushes
-		s.Report.TotalLoses += t.Player.Report.TotalLoses
-		s.Report.TotalBet += t.Player.Report.TotalBet
-		s.Report.TotalWon += t.Player.Report.TotalWon
-		s.Report.Duration += t.Report.Duration
+		s.Report.Merge(&t.Player.Report)
 	}
+	return nil
 }

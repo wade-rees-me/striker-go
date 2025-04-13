@@ -28,8 +28,8 @@ type Strategy struct {
 	JsonResponse  map[string]interface{}
 }
 
-func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
-	s := &Strategy{NumberOfCards: numberOfCards}
+func NewStrategy(decks, strategy string, numberOfDecks int) *Strategy {
+	s := &Strategy{NumberOfCards: numberOfDecks * constants.NumberOfCardsInDeck}
 
 	s.SoftDouble = NewChart("Soft Double")
 	s.HardDouble = NewChart("Hard Double")
@@ -42,8 +42,6 @@ func NewStrategy(decks, strategy string, numberOfCards int) *Strategy {
 		if err != nil {
 			log.Fatalf("Error fetching JSON: %v", err)
 		}
-		//fmt.Printf("decks: %s\n", decks)
-		//fmt.Printf("strategy: %s\n", strategy)
 		s.fetchTable(decks, strategy)
 
 		if false {

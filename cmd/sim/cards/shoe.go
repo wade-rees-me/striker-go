@@ -24,7 +24,19 @@ type Shoe struct {
 
 // Suits and card names/constants
 var suits = []string{"spades", "diamonds", "clubs", "hearts"}
-var cardNames = []string{"two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king", "ace"}
+var cardNames = []string{"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
+	"ten",
+	"jack",
+	"queen",
+	"king",
+	"ace"}
 var cardValues = []int{2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11}
 var cardKeys = []string{"2", "3", "4", "5", "6", "7", "8", "9", "X", "X", "X", "X", "A"}
 
@@ -55,7 +67,7 @@ func NewShoe(numberOfDecks int, penetration float64) *Shoe {
 		Random:        rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano())
 	shoe.Shuffle()
 	return shoe
 }

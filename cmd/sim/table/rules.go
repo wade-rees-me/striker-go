@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+
+	//"io/ioutil"
+
 	"log"
 	"net/http"
 
@@ -75,26 +78,4 @@ func (r *Rules) Print() {
 	fmt.Printf("      %-24s: %d\n", "Blackjack bets", r.BlackjackBets)
 	fmt.Printf("      %-24s: %d\n", "Blackjack pays", r.BlackjackPays)
 	fmt.Printf("      %-24s: %0.3f %%\n", "Penetration", r.Penetration)
-}
-
-// Serialize parameters to JSON
-func (r *Rules) Serialize() string {
-	data := map[string]interface{}{
-		"hit_soft_17":          r.HitSoft17,
-		"surrender":            r.Surrender,
-		"double_any_two_cards": r.DoubleAnyTwoCards,
-		"double_after_split":   r.DoubleAfterSplit,
-		"re_split_aces":        r.ResplitAces,
-		"hit_split_aces":       r.HitSplitAces,
-		"blackjack_bets":       r.BlackjackBets,
-		"blackjack_pays":       r.BlackjackPays,
-		"penetration":          r.Penetration,
-	}
-
-	jsonBytes, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Fatalf("Failed to serialize parameters: %v", err)
-	}
-
-	return string(jsonBytes)
 }
