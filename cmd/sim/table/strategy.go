@@ -3,7 +3,7 @@ package table
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -64,7 +64,7 @@ func (s *Strategy) fetchJson(url string) error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	bodyString := string(body)
 	bodyString = constants.UnescapeJSON(bodyString)
 	bodyString = constants.StripQuotes(bodyString)

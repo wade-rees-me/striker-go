@@ -132,14 +132,14 @@ func (r *Report) Insert(p *Parameters, l *table.Rules) {
 	// Convert data to JSON
 	jsonData, err := json.Marshal(r)
 	if err != nil {
-		fmt.Println("    Error marshalling JSON: %v\n", err)
+		fmt.Println("    Error marshalling JSON:", err)
 		return
 	}
 
 	// Create a new POST request with JSON data
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		fmt.Println("    Error creating request: %v\n", err)
+		fmt.Println("    Error creating request:", err)
 		return
 	}
 
@@ -149,7 +149,7 @@ func (r *Report) Insert(p *Parameters, l *table.Rules) {
 	// Send the request using http.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("    Error sending request: %v\n", err)
+		fmt.Println("    Error sending request:", err)
 		return
 	}
 	defer resp.Body.Close()

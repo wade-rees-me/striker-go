@@ -44,7 +44,7 @@ func (s *Simulator) GetReport() *arguments.Report {
 	return &s.Report
 }
 
-func (s *Simulator) SimulatorProcess(id int, wg *sync.WaitGroup) error {
+func (s *Simulator) SimulatorProcess(id int, wg *sync.WaitGroup) {
 	defer wg.Done() // Mark this goroutine as done when it finishes
 
 	for i := range s.TableList {
@@ -60,5 +60,4 @@ func (s *Simulator) SimulatorProcess(id int, wg *sync.WaitGroup) error {
 		s.Report.TotalHands += t.Report.TotalHands
 		s.Report.Merge(&t.Player.Report)
 	}
-	return nil
 }

@@ -3,10 +3,7 @@ package table
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-
-	//"io/ioutil"
-
+	"io"
 	"log"
 	"net/http"
 
@@ -50,7 +47,7 @@ func (r *Rules) fetchTable(url string) error {
 		return fmt.Errorf("bad status code: %d", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	bodyString := string(body)
 	bodyString = constants.UnescapeJSON(bodyString)
 	bodyString = constants.StripQuotes(bodyString)
