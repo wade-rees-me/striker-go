@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/dustin/go-humanize"
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
+	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
 	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 )
 
@@ -85,8 +87,9 @@ func (t *Table) dealCards() {
 }
 
 func (t *Table) Status(round int64, hand int64) {
-	spinner := []rune{'|', '/', '-', '\\'}
-
-	fmt.Printf("\r%c Simulating...", spinner[round%int64(len(spinner))])
-	os.Stdout.Sync()
+	if round%constants.StatusRounds == 0 {
+		fmt.Fprintf(os.Stdout, "\r    Rounds: [%13sd] Hands [%13sd]: Simulating...",
+			humanize.Comma(round), humanize.Comma(hand))
+		os.Stdout.Sync()
+	}
 }

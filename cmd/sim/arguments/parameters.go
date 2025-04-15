@@ -49,7 +49,7 @@ func (p *Parameters) Print() {
 	fmt.Printf("    %-26s: %s\n", "Decks", p.Decks)
 	fmt.Printf("    %-26s: %s\n", "Strategy", p.Strategy)
 	fmt.Printf("    %-26s: %17s\n", "Number of hands", humanize.Comma(p.NumberOfHands))
-	fmt.Printf("    %-26s: %17s\n", "Thread's share of hands", humanize.Comma(p.NumberOfShares))
+	fmt.Printf("    %-26s: %17s\n", "Thread share of hands", humanize.Comma(p.NumberOfShares))
 	fmt.Printf("    %-26s: %s\n", "Epoch", p.Epoch)
 }
 

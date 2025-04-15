@@ -21,6 +21,7 @@ const (
 	DatabaseNumberOfHands = int64(Million * 500)
 	MaxSplitHands         = 18
 	StrikerWhoAmI         = "striker-go"
+	StatusRounds          = int64(1000000)
 
 	NumberOfCardsInDeck   = 52
 	NumberOfCoresPhysical = 24
