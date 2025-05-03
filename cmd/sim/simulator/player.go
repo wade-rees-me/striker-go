@@ -77,12 +77,14 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 		split := &p.Splits[p.SplitCount]
 		p.SplitCount++
 		p.Report.TotalSplits++
-		p.Wager.SplitWager(split)
 		if p.Wager.Hand.PairOfAces() {
+			p.Report.TotalSplitsAce++
+			p.Wager.SplitWager(split)
 			p.Draw(&p.Wager.Hand, s)
 			p.Draw(&split.Hand, s)
 			return
 		}
+		p.Wager.SplitWager(split)
 		p.Draw(&p.Wager.Hand, s)
 		p.PlaySplit(&p.Wager, s, up)
 		p.Draw(&split.Hand, s)

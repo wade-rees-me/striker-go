@@ -27,6 +27,7 @@ type Report struct {
 	TotalBlackjacks int64   `json:"total_blackjacks"`
 	TotalDoubles    int64   `json:"total_doubles"`
 	TotalSplits     int64   `json:"total_splits"`
+	TotalSplitsAce  int64   `json:"total_splits_ace"`
 	TotalWins       int64   `json:"total_wins"`
 	TotalLoses      int64   `json:"total_loses"`
 	TotalPushes     int64   `json:"total_pushes"`
@@ -63,6 +64,7 @@ func (r *Report) Init() {
 	r.TotalBlackjacks = int64(0)
 	r.TotalDoubles = int64(0)
 	r.TotalSplits = int64(0)
+	r.TotalSplitsAce = int64(0)
 	r.TotalWins = int64(0)
 	r.TotalLoses = int64(0)
 	r.TotalPushes = int64(0)
@@ -76,6 +78,7 @@ func (r *Report) Merge(b *Report) {
 	r.TotalBlackjacks += b.TotalBlackjacks
 	r.TotalDoubles += b.TotalDoubles
 	r.TotalSplits += b.TotalSplits
+	r.TotalSplitsAce += b.TotalSplitsAce
 	r.TotalWins += b.TotalWins
 	r.TotalLoses += b.TotalLoses
 	r.TotalPushes += b.TotalPushes
@@ -104,8 +107,10 @@ func (report *Report) Print(numberOfThreads int64) {
 		(float64(report.TotalBlackjacks) / float64(report.TotalHands) * 100.0))
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total doubles", humanize.Comma(report.TotalDoubles),
 		(float64(report.TotalDoubles) / float64(report.TotalHands) * 100.0))
-	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total split", humanize.Comma(report.TotalSplits),
+	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total splits", humanize.Comma(report.TotalSplits),
 		(float64(report.TotalSplits) / float64(report.TotalHands) * 100.0))
+	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total splits - Ace", humanize.Comma(report.TotalSplitsAce),
+		(float64(report.TotalSplitsAce) / float64(report.TotalHands) * 100.0))
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total wins", humanize.Comma(report.TotalWins),
 		(float64(report.TotalWins) / float64(report.TotalHands) * 100.0))
 	fmt.Printf("    %-26s: %17s %+08.3f %% of total hands\n", "Total pushes", humanize.Comma(report.TotalPushes),
