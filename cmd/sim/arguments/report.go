@@ -127,6 +127,10 @@ func (report *Report) Print(numberOfThreads int64) {
 }
 
 func (r *Report) Insert(p *Parameters, l *table.Rules) {
+	if !constants.IsMyComputer() {
+		fmt.Println("    This code is restricted to running only on my computer.")
+		return
+	}
 	if r.TotalHands < constants.DatabaseNumberOfHands {
 		fmt.Printf("    Error: Not enough hands played (%d). Minimum required is %d\n", r.TotalHands,
 			constants.DatabaseNumberOfHands)

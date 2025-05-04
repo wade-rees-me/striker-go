@@ -1,6 +1,7 @@
 package constants
 
 import (
+	"fmt"
 	"os"
 	"strings"
 )
@@ -22,6 +23,7 @@ const (
 	MaxSplitHands         = 18
 	StrikerWhoAmI         = "striker-go"
 	StatusRounds          = int64(1000000)
+	MyHostname            = "Striker"
 
 	NumberOfCardsInDeck   = 52
 	NumberOfCoresPhysical = 24
@@ -33,6 +35,18 @@ const (
 	TrueCountBet        = 2
 	TrueCounTMultiplier = 26
 )
+
+// Get hostname and check if it matches
+func IsMyComputer() bool {
+	hostname, err := os.Hostname()
+	if err != nil {
+		fmt.Println("Error getting hostname:", err)
+		return false
+	}
+
+	myHostname := MyHostname
+	return myHostname == hostname
+}
 
 var RulesUrl = os.Getenv("STRIKER_URL_RULES")
 var ChartsUrl = os.Getenv("STRIKER_URL_CHARTS")

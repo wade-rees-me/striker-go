@@ -1,7 +1,7 @@
 # Directories
 SRC_DIR = .
 BIN_DIR = bin
-TARGET = $(BIN_DIR)/strikerGo
+TARGET = $(BIN_DIR)/striker-go
 
 # Striker Home
 STRIKER = ${HOME}/Striker
