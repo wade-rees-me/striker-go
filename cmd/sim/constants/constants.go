@@ -29,7 +29,7 @@ const (
 	NumberOfCoresDefault  = 16
 
 	MinimumBet          = 2
-	MaximumBet          = 98
+	MaximumBet          = 20
 	TrueCountBet        = 2
 	TrueCounTMultiplier = 26
 )
