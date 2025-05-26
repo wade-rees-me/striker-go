@@ -1,9 +1,9 @@
 package cards
 
 type Hand struct {
-	Cards	  []Card // Cards in the hand
-	HandTotal int // Total value of the hand
-	SoftAce   int // Number of aces valued as 11
+	Cards     []Card // Cards in the hand
+	HandTotal int    // Total value of the hand
+	SoftAce   int    // Number of aces valued as 11
 }
 
 func NewHand() *Hand {

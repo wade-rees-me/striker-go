@@ -1,11 +1,11 @@
 package cards
 
 type Wager struct {
-	Hand		 Hand  // The hand associated with the wager
-	MinimumBet	 int64
-	MaximumBet	 int64
-	AmountBet	 int64 // The amount of the initial bet
-	AmountWon	 int64 // The amount won from the wager
+	Hand         Hand // The hand associated with the wager
+	MinimumBet   int64
+	MaximumBet   int64
+	AmountBet    int64 // The amount of the initial bet
+	AmountWon    int64 // The amount won from the wager
 	InsuranceBet int64
 	InsuranceWon int64
 }
@@ -77,4 +77,3 @@ func ClampInt(value, min, max int64) int64 {
 	}
 	return value
 }
-

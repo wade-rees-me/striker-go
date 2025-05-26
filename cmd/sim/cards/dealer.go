@@ -1,7 +1,7 @@
 package cards
 
 type Dealer struct {
-	Hand	  Hand
+	Hand      Hand
 	HitSoft17 bool
 }
 
