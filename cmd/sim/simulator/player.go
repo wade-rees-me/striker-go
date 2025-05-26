@@ -3,19 +3,19 @@ package simulator
 import (
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
-	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 )
 
 type Player struct {
-	Wager			cards.Wager
-	Splits			[constants.MaxSplitHands]cards.Wager
-	SplitCount		int
-	Rules 			*table.Rules
-	Strategy		*table.Strategy
-	Report			arguments.Report
-	NumberOfCards	int
-	SeenCards		*[cards.MAXIMUM_CARD_VALUE + 1]int
+	Wager         cards.Wager
+	Splits        [constants.MaxSplitHands]cards.Wager
+	SplitCount    int
+	Rules         *table.Rules
+	Strategy      *table.Strategy
+	Report        arguments.Report
+	NumberOfCards int
+	SeenCards     *[cards.MAXIMUM_CARD_VALUE + 1]int
 }
 
 func NewPlayer(rules *table.Rules, strategy *table.Strategy, numberOfCards int) *Player {
@@ -40,7 +40,7 @@ func (p *Player) PlaceBet(mimic bool) {
 		p.Splits[i].Reset()
 	}
 	p.SplitCount = 0
-	if(mimic) {
+	if mimic {
 		p.Wager.Bet(int64(constants.MinimumBet))
 	} else {
 		p.Wager.Bet(int64(p.Strategy.GetBet(p.SeenCards)))
@@ -59,11 +59,11 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 		return
 	}
 
-	if(mimic) {
+	if mimic {
 		for !p.MimicStand() {
 			p.Wager.Hand.Draw(s.Draw())
 		}
-		return;
+		return
 	}
 
 	if p.Strategy.GetDouble(p.SeenCards, p.Wager.Hand.Total(), p.Wager.Hand.Soft(), up) {
@@ -77,12 +77,14 @@ func (p *Player) Play(s *cards.Shoe, up *cards.Card, mimic bool) {
 		split := &p.Splits[p.SplitCount]
 		p.SplitCount++
 		p.Report.TotalSplits++
-		p.Wager.SplitWager(split)
 		if p.Wager.Hand.PairOfAces() {
+			p.Report.TotalSplitsAce++
+			p.Wager.SplitWager(split)
 			p.Draw(&p.Wager.Hand, s)
 			p.Draw(&split.Hand, s)
 			return
 		}
+		p.Wager.SplitWager(split)
 		p.Draw(&p.Wager.Hand, s)
 		p.PlaySplit(&p.Wager, s, up)
 		p.Draw(&split.Hand, s)

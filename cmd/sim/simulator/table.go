@@ -2,28 +2,24 @@ package simulator
 
 import (
 	"fmt"
-	"time"
 	"os"
 
 	"github.com/dustin/go-humanize"
-
 	"github.com/wade-rees-me/striker-go/cmd/sim/arguments"
-	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 	"github.com/wade-rees-me/striker-go/cmd/sim/cards"
+	"github.com/wade-rees-me/striker-go/cmd/sim/constants"
+	"github.com/wade-rees-me/striker-go/cmd/sim/table"
 )
 
-const STATUS_DOT = 25000;
-const STATUS_LINE = 1000000;
-
 type Table struct {
-	Index		int64
-	Dealer		*cards.Dealer
-	Player		*Player
-	Shoe		cards.Shoe
-	Parameters	*arguments.Parameters
-	Report		arguments.Report
-	Up			*cards.Card
-	Down		*cards.Card
+	Index      int64
+	Dealer     *cards.Dealer
+	Player     *Player
+	Shoe       cards.Shoe
+	Parameters *arguments.Parameters
+	Report     arguments.Report
+	Up         *cards.Card
+	Down       *cards.Card
 }
 
 func NewTable(index int64, parameters *arguments.Parameters, rules *table.Rules) *Table {
@@ -40,11 +36,10 @@ func (t *Table) AddPlayer(player *Player) {
 }
 
 func (t *Table) Session(mimic bool) {
-	fmt.Printf("    Start: %s table session\n", t.Parameters.Strategy);
-	fmt.Printf("      Start: table playing %s hands\n", humanize.Comma(t.Parameters.NumberOfHands))
-	t.Report.Start = time.Now()
-	for t.Report.TotalHands < t.Parameters.NumberOfHands {
-		t.Status(t.Report.TotalRounds, t.Report.TotalHands)
+	for t.Report.TotalHands < t.Parameters.NumberOfShares {
+		if t.Parameters.NumberOfThreads == 1 {
+			t.Status(t.Report.TotalRounds, t.Report.TotalHands)
+		}
 		t.Report.TotalRounds++
 		t.Shoe.Shuffle()
 		t.Player.Shuffle()
@@ -75,10 +70,9 @@ func (t *Table) Session(mimic bool) {
 		}
 	}
 
-	t.Report.End = time.Now()
-	t.Report.Duration = time.Since(t.Report.Start).Round(time.Second)
-	fmt.Printf("\n      End: table\n")
-	fmt.Printf("    End: table session\n");
+	if t.Parameters.NumberOfThreads == 1 {
+		fmt.Printf("\r")
+	}
 }
 
 func (t *Table) dealCards() {
@@ -93,15 +87,9 @@ func (t *Table) dealCards() {
 }
 
 func (t *Table) Status(round int64, hand int64) {
-	if round == 0 {
-		fmt.Printf("        ")
+	if round%constants.StatusRounds == 0 {
+		fmt.Fprintf(os.Stdout, "\r    Rounds: [%13sd] Hands [%13sd]: Simulating...",
+			humanize.Comma(round), humanize.Comma(hand))
+		os.Stdout.Sync()
 	}
-	if (round+1)%STATUS_DOT == 0 {
-		fmt.Printf(".")
-	}
-	if (round+1)%STATUS_LINE == 0 {
-		fmt.Printf(" : %s (rounds), %s (hands)\n", humanize.Comma(round+1), humanize.Comma(hand))
-		fmt.Printf("        ")
-	}
-	os.Stdout.Sync()
 }
