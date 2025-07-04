@@ -41,5 +41,3 @@ install:
 	@mkdir -p $(STRIKER)/bin
 	cp -f $(TARGET) $(STRIKER)/bin
 
-include Makefile.run
-
