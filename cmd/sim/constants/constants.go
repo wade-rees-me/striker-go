@@ -18,8 +18,8 @@ const (
 	Billion               = int64(Million * 1000)
 	MaximumNumberOfHands  = int64(Billion * 10)
 	MinimumNumberOfHands  = int64(1000)
-	DefaultNumberOfHands  = int64(Million * 500)
-	DatabaseNumberOfHands = int64(Million * 500)
+	DefaultNumberOfHands  = int64(Million * 100)
+	DatabaseNumberOfHands = int64(Million * 100)
 	MaxSplitHands         = 18
 	StrikerWhoAmI         = "striker-go"
 	StatusRounds          = int64(1000000)
